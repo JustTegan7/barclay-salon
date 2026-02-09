@@ -1,0 +1,190 @@
+/* =========================================================
+   Global theme + reset
+   ========================================================= */
+:root {
+  --cream: #fefaf7;
+  --teal: #154d57;
+  --beige: #b7a08b;
+  --ink: #0f172a;
+
+  --radius-lg: 16px;
+  --shadow-sm: 0 6px 16px rgba(0, 0, 0, 0.05);
+  --shadow-lg: 0 10px 28px rgba(0, 0, 0, 0.12);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--cream);
+  color: var(--ink);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, Ubuntu, Cantarell,
+    "Noto Sans", Arial, sans-serif;
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+img,
+svg,
+video {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+}
+
+/* Better default focus for keyboard users */
+:focus-visible {
+  outline: 3px solid var(--beige);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   Layout helpers
+   ========================================================= */
+.section {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.center {
+  text-align: center;
+}
+
+/* =========================================================
+   Buttons & chips
+   ========================================================= */
+.btn-outline {
+  display: inline-block;
+  border: 2px solid var(--ink);
+  padding: 8px 12px;
+  border-radius: 10px;
+  font-weight: 700;
+  background: #fff;
+  color: var(--ink);
+  text-decoration: none;
+}
+
+.tech-chip {
+  font-size: 12px;
+  padding: 6px 8px;
+  border: 1px solid #eee;
+  border-radius: 999px;
+  background: #fff;
+}
+
+/* =========================================================
+   Project grid (responsive & centered)
+   - Desktop: 3 cols
+   - Tablet:  2 cols
+   - Phone:   1 col
+   ========================================================= */
+.projects-grid {
+  display: grid;
+  gap: 28px;
+  max-width: 1100px; /* centers overall block */
+  margin: 0 auto;
+  padding: 0 8px;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  justify-items: stretch; /* cards fill their column */
+}
+
+@media (max-width: 1100px) {
+  .projects-grid {
+    max-width: 900px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 640px) {
+  .projects-grid {
+    max-width: 640px;
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+}
+
+/* =========================================================
+   Project card (tall rectangle, bordered)
+   ========================================================= */
+.project-card {
+  border: 2px solid var(--teal);
+  border-radius: var(--radius-lg);
+  background: #fff;
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+
+  min-height: 320px; /* keeps a tall, tidy shape without hard lock */
+}
+
+/* Hover/focus lift on devices that support hover */
+@media (hover: hover) {
+  .project-card {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+  }
+  .project-card:hover,
+  .project-card:focus-within {
+    transform: translateY(-4px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* Clickable project title (improves tap target + a11y) */
+.project-title {
+  all: unset;
+  cursor: pointer;
+  color: var(--teal);
+  font-weight: 800;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  border-radius: 8px;
+  padding: 2px 4px;
+}
+
+/* =========================================================
+   Mission block (used on About page if desired)
+   ========================================================= */
+.mission-block {
+  background: var(--beige);
+  color: var(--ink);
+  padding: 32px 20px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+/* =========================================================
+   Respect user motion preferences
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+  .project-card {
+    transition: none;
+  }
+}

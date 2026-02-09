@@ -1,0 +1,22 @@
+{
+  "compilerOptions": {
+    "composite": true,
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noEmit": true,
+    "forceConsistentCasingInFileNames": true,
+    "baseUrl": "./src",
+    "paths": {
+      "@Components/*": ["Components/*"],
+      "@Pages/*": ["Pages/*"],
+      "@Assets/*": ["Assets/*"]
+    },
+    "types": ["node"]
+  },
+  "include": ["vite.config.ts", "env.d.ts"]
+}

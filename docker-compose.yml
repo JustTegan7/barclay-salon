@@ -1,0 +1,15 @@
+services:
+  db:
+    image: postgres:16
+    container_name: barclay_postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: barclay
+      POSTGRES_PASSWORD: barclay
+      POSTGRES_DB: barclay
+    volumes:
+      - barclay_pgdata:/var/lib/postgresql/data
+
+volumes:
+  barclay_pgdata:

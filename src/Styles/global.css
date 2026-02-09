@@ -1,0 +1,391 @@
+/* =========================================================
+   Barclay’s Salon — Global Styles (FINAL)
+   Palette A — Modern, warm, professional
+   ========================================================= */
+
+/* Reset */
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* =========================================================
+   Design Tokens
+   ========================================================= */
+:root {
+  /* Brand colors */
+  --primary: #283618; /* deep forest */
+  --secondary: #6b7f5a; /* muted sage */
+  --accent: #c26a2e; /* soft copper */
+
+  /* Neutrals */
+  --bg: #f5f7f4; /* soft warm gray */
+  --surface: #ffffff; /* cards, modals */
+  --text: #1f2933; /* near-black */
+  --text-muted: #5f6b61;
+
+  /* UI */
+  --border: rgba(31, 41, 51, 0.14);
+  --shadow-sm: 0 10px 26px rgba(31, 41, 51, 0.1);
+  --shadow-md: 0 18px 60px rgba(31, 41, 51, 0.14);
+
+  --radius-lg: 18px;
+}
+
+/* =========================================================
+   Base
+   ========================================================= */
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  -webkit-font-smoothing: antialiased;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  cursor: pointer;
+  background: none;
+  border: none;
+}
+
+/* Focus (accessible but subtle) */
+:focus-visible {
+  outline: 3px solid rgba(194, 106, 46, 0.55);
+  outline-offset: 3px;
+}
+
+/* =========================================================
+   App Layout
+   ========================================================= */
+.app {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+}
+
+/* Shared section wrapper */
+.section {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  padding: 48px 16px;
+}
+
+.section-heading {
+  font-size: 1.75rem;
+  margin-bottom: 12px;
+  letter-spacing: -0.02em;
+}
+
+.section-body {
+  max-width: 70ch;
+  margin-bottom: 10px;
+}
+
+.section-muted {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+}
+
+/* =========================================================
+   Navbar
+   ========================================================= */
+.navbar {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+
+  padding: 0.9rem 1.25rem;
+  background: rgba(245, 247, 244, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.navbar-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* Logo in navbar */
+.navbar-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.navbar-logo {
+  height: 90px;
+  width: auto;
+  object-fit: contain;
+}
+
+.navbar-brand-text {
+  font-weight: 900;
+  letter-spacing: 0.02em;
+}
+
+.navbar-tagline {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.navbar-links {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.navbar-links a {
+  font-size: 0.95rem;
+  color: var(--text);
+  opacity: 0.85;
+}
+
+.navbar-links a:hover {
+  opacity: 1;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+/* =========================================================
+   Buttons
+   ========================================================= */
+.btn-primary,
+.btn-outline,
+.btn-accent {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 800;
+  border: 1px solid transparent;
+}
+
+/* Primary action */
+.btn-primary {
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-primary:hover {
+  filter: brightness(1.05);
+}
+
+/* Neutral outline */
+.btn-outline {
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+}
+
+.btn-outline:hover {
+  background: #ffffff;
+}
+
+/* Accent / promo */
+.btn-accent {
+  background: var(--accent);
+  color: #ffffff;
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-accent:hover {
+  filter: brightness(1.05);
+}
+
+/* =========================================================
+   Hero
+   ========================================================= */
+.hero {
+  padding: 64px 0 32px;
+}
+
+.hero-grid {
+  width: min(1100px, 92vw);
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr;
+  gap: 32px;
+}
+
+.hero-intro-eyebrow {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  font-weight: 800;
+  color: var(--text-muted);
+  margin-bottom: 10px;
+}
+
+.hero-title {
+  font-size: clamp(2rem, 4vw, 3rem);
+  line-height: 1.08;
+  margin-bottom: 12px;
+}
+
+.hero-highlight {
+  color: var(--secondary);
+}
+
+.hero-tagline {
+  max-width: 62ch;
+  margin-bottom: 18px;
+  color: var(--text-muted);
+}
+
+.hero-meta {
+  margin-top: 16px;
+  font-size: 0.92rem;
+  color: var(--text-muted);
+}
+
+.hero-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 20px;
+  box-shadow: var(--shadow-sm);
+}
+
+.hero-card-heading {
+  font-weight: 900;
+  margin-bottom: 10px;
+}
+
+/* =========================================================
+   About Page
+   ========================================================= */
+.about-hero {
+  background: radial-gradient(
+      900px 400px at 20% 10%,
+      rgba(107, 127, 90, 0.18),
+      transparent 70%
+    ),
+    radial-gradient(
+      900px 400px at 80% 0%,
+      rgba(194, 106, 46, 0.18),
+      transparent 65%
+    ),
+    linear-gradient(180deg, #ffffff, var(--bg));
+  border-bottom: 1px solid var(--border);
+}
+
+.about-card,
+.about-callout,
+.placeholder-card,
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-sm);
+}
+
+/* =========================================================
+   Modal
+   ========================================================= */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(31, 41, 51, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  z-index: 60;
+}
+
+.modal {
+  width: min(720px, 94vw);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-body {
+  padding: 16px;
+}
+
+.modal-input,
+.modal-select {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  background: #ffffff;
+  color: var(--text);
+}
+
+.modal-note {
+  color: var(--text-muted);
+}
+
+/* =========================================================
+   Footer
+   ========================================================= */
+.footer {
+  padding: 1rem 1.25rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  border-top: 1px solid var(--border);
+  background: rgba(245, 247, 244, 0.7);
+}
+
+/* =========================================================
+   Responsive
+   ========================================================= */
+@media (max-width: 900px) {
+  .hero-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .navbar {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .navbar-right {
+    width: 100%;
+    justify-content: space-between;
+  }
+}
