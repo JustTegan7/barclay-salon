@@ -4,7 +4,7 @@ type ModalProps = {
   open: boolean;
   onClose: () => void;
   title: string;
-  titleBg?: string;
+  titleBg?: string; // kept for API compat, unused in new design
   children?: React.ReactNode;
 };
 
@@ -12,7 +12,6 @@ export default function Modal({
   open,
   onClose,
   title,
-  titleBg = "#B7A08B",
   children,
 }: ModalProps) {
   const closeBtnRef = useRef<HTMLButtonElement | null>(null);
@@ -73,69 +72,31 @@ export default function Modal({
 
   return (
     <div
+      className="modal-backdrop"
       onClick={onClose}
       aria-modal="true"
       role="dialog"
       aria-labelledby={labelId}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 1000,
-        background: "rgba(0,0,0,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-      }}
     >
       <div
         ref={dialogRef}
+        className="modal"
         onClick={(e) => e.stopPropagation()}
-        style={{
-          width: "min(760px, 92vw)",
-          background: "#FEFAF7",
-          border: "2px solid #0f172a",
-          borderRadius: 12,
-          boxShadow: "0 12px 40px rgba(0,0,0,0.25)",
-          overflow: "hidden",
-          maxHeight: "85vh",
-          display: "flex",
-          flexDirection: "column",
-        }}
       >
-        <div
-          style={{
-            position: "relative",
-            background: titleBg,
-            padding: "12px 48px",
-          }}
-        >
-          <h3
-            id={labelId}
-            style={{ margin: 0, textAlign: "center", color: "#0f172a" }}
-          >
+        <div className="modal-header">
+          <h2 id={labelId} className="modal-title">
             {title}
-          </h3>
+          </h2>
           <button
             ref={closeBtnRef}
+            className="modal-close"
             onClick={onClose}
             aria-label="Close modal"
-            style={{
-              position: "absolute",
-              right: 10,
-              top: 8,
-              border: "2px solid #0f172a",
-              borderRadius: 8,
-              padding: "6px 10px",
-              fontWeight: 600,
-              background: "#fff",
-              cursor: "pointer",
-            }}
           >
-            Close
+            ×
           </button>
         </div>
-        <div style={{ padding: 16, overflow: "auto" }}>{children}</div>
+        <div className="modal-body">{children}</div>
       </div>
     </div>
   );

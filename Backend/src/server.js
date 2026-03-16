@@ -4,279 +4,128 @@ const express = require("express");
 const cors = require("cors");
 
 const { pool, query, initDb } = require("./db");
-const { createGuestAppointment } = require("./bookingController");
+const { createGuestAppointment } = require("./api/bookingController");
+
+const { authRequired, requireRole } = require("./api/authMiddleware");
+const { createEmployee } = require("./api/userController");
+const { login } = require("./api/authController");
 
 const app = express();
 
 const PORT = process.env.PORT || 4000;
 const CLIENT_ORIGIN = process.env.CLIENT_ORIGIN || "http://localhost:5173";
 
-// Allow your Vite frontend to call the API
-app.use(
-  cors({
-    origin: CLIENT_ORIGIN,
-    credentials: true,
-  })
-);
-
+app.use(cors({ origin: CLIENT_ORIGIN, credentials: true }));
 app.use(express.json());
 
 // ------------------------------
-// Dev request logger (so backend terminal shows traffic)
+// Dev request logger
 // ------------------------------
 app.use((req, res, next) => {
   const start = Date.now();
-
   res.on("finish", () => {
     const ms = Date.now() - start;
     console.log(
-      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${
-        res.statusCode
-      } (${ms}ms)`
+      `[${new Date().toISOString()}] ${req.method} ${req.originalUrl} -> ${res.statusCode} (${ms}ms)`,
     );
   });
-
   next();
 });
 
 // ------------------------------
-// Health checks (support both paths)
+// Health check
 // ------------------------------
-function healthPayload() {
-  return {
+app.get(["/health", "/api/health"], (_req, res) => {
+  res.json({
     ok: true,
     service: "barclay-api",
     time: new Date().toISOString(),
     db: pool ? "postgres-enabled" : "in-memory",
-  };
-}
-
-app.get(["/health", "/api/health"], (_req, res) => {
-  res.json(healthPayload());
+  });
 });
 
 // ------------------------------
-// Services (mock for now)
+// Services — full catalog from services.js
 // ------------------------------
-const services = [
-  {
-    id: "balayage",
-    category: "Color",
-    name: "Balayage",
-    base_price_cents: 22000,
-  },
-  {
-    id: "all-over-color",
-    category: "Color",
-    name: "All-Over Color",
-    base_price_cents: 16000,
-  },
-  {
-    id: "gloss-toner",
-    category: "Color",
-    name: "Gloss / Toner",
-    base_price_cents: 8500,
-  },
-  {
-    id: "womens-cut",
-    category: "Cuts",
-    name: "Women’s Cut",
-    base_price_cents: 6500,
-  },
-  {
-    id: "mens-cut",
-    category: "Cuts",
-    name: "Men’s Cut",
-    base_price_cents: 4500,
-  },
-  {
-    id: "kids-cut",
-    category: "Cuts",
-    name: "Kids Cut",
-    base_price_cents: 3000,
-  },
-  {
-    id: "blowout",
-    category: "Styling",
-    name: "Blowout",
-    base_price_cents: 4500,
-  },
-  {
-    id: "special-occasion-style",
-    category: "Styling",
-    name: "Special Occasion Style",
-    base_price_cents: 8500,
-  },
-];
+const services = require("./services");
 
 function findService(serviceId) {
   return services.find((s) => s.id === serviceId) || null;
 }
 
-app.get(["/services", "/api/services"], (_req, res) => {
-  res.json(services);
-});
+app.get(["/services", "/api/services"], (_req, res) => res.json(services));
 
-// ------------------------------
-// V1 customer-less auth placeholder (staff auth later)
-// ------------------------------
-app.post("/api/auth/login", (req, res) => {
-  const { email } = req.body || {};
-  if (!email)
-    return res.status(400).json({ ok: false, error: "email required" });
+// ══════════════════════════════
+// AUTH
+// ══════════════════════════════
 
-  res.json({
-    ok: true,
-    token: "dev-token",
-    user: { email, role: "staff" },
-  });
-});
+app.post("/api/auth/login", (req, res) => login({ query }, req, res));
 
-// ------------------------------
-// Appointments (DB-backed if DATABASE_URL exists, else in-memory)
-// ------------------------------
-const memoryAppointments = [];
+// ══════════════════════════════
+// ADMIN — USERS
+// ══════════════════════════════
 
-function isConflictInMemory(serviceId, datetimeIso) {
-  return memoryAppointments.some(
-    (a) =>
-      a.service_id === serviceId &&
-      a.datetime === datetimeIso &&
-      String(a.status).toLowerCase() !== "cancelled"
-  );
-}
+// Create employee
+app.post(
+  "/api/admin/users",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  (req, res) => createEmployee({ query }, req, res),
+);
 
-async function isConflictInDb(serviceId, datetimeIso) {
-  // Uses DB-mode appointments table from your initDb()
-  const r = await query(
-    `
-    SELECT 1
-    FROM appointments
-    WHERE service_id = $1
-      AND datetime = $2
-      AND status <> 'cancelled'
-    LIMIT 1;
-    `,
-    [serviceId, datetimeIso]
-  );
-  return r.rows.length > 0;
-}
-
-/**
- * POST /api/appointments
- * Frontend should send:
- * { name, phone, email, serviceId, datetime }
- *
- * We will map serviceId -> serviceName here (trusted from our services list).
- */
-app.post("/api/appointments", async (req, res) => {
-  try {
-    const { name, phone, email, serviceId, datetime } = req.body || {};
-
-    if (!name || !serviceId || !datetime) {
-      return res
-        .status(400)
-        .json({ ok: false, error: "name, serviceId, datetime required" });
-    }
-
-    const svc = findService(serviceId);
-    if (!svc)
-      return res.status(400).json({ ok: false, error: "Unknown serviceId" });
-
-    if (pool) await initDb();
-
-    const result = await createGuestAppointment({
-      query,
-      pool,
-      memoryAppointments,
-      payload: {
-        name,
-        phone,
-        email,
-        serviceId,
-        serviceName: svc.name,
-        datetime,
-      },
-    });
-
-    return res.status(result.status).json(result.body);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: "Server error" });
-  }
-});
-
-// Backwards-compatible alias (older endpoint)
-// POST /api/bookings
-// Legacy body: { name, phone, service, datetime, email }
-app.post("/api/bookings", async (req, res) => {
-  try {
-    const { name, phone, service, datetime, email } = req.body || {};
-    const serviceId = service;
-
-    if (!name || !serviceId || !datetime) {
-      return res
-        .status(400)
-        .json({ ok: false, error: "name, service, datetime required" });
-    }
-
-    const svc = findService(serviceId);
-    if (!svc)
-      return res.status(400).json({ ok: false, error: "Unknown service" });
-
-    if (pool) await initDb();
-
-    const result = await createGuestAppointment({
-      query,
-      pool,
-      memoryAppointments,
-      payload: {
-        name,
-        phone,
-        email,
-        serviceId,
-        serviceName: svc.name,
-        datetime,
-      },
-    });
-
-    return res.status(result.status).json(result.body);
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: "Server error" });
-  }
-});
-
-// ------------------------------
-// Admin: list appointments (debug/admin view for now)
-// ------------------------------
-app.get("/api/admin/appointments", async (_req, res) => {
-  try {
-    if (pool) {
-      await initDb();
+// List all employees
+app.get(
+  "/api/admin/users",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
       const result = await query(
-        `
-        SELECT ga.*,
-               c.name  AS customer_name,
-               c.email AS customer_email,
-               c.phone AS customer_phone
-        FROM guest_appointments ga
-        LEFT JOIN customers c ON c.id = ga.customer_id
-        ORDER BY ga.datetime ASC;
-        `
+        `SELECT id, email, role, is_active, created_at
+         FROM users
+         ORDER BY created_at DESC;`
       );
-
-      return res.json({ ok: true, appointments: result.rows });
+      return res.json({ ok: true, users: result.rows });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
     }
-
-    return res.json({ ok: true, appointments: memoryAppointments });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: "Server error" });
   }
-});
+);
 
-// Latest appointment (debug gold)
+// ══════════════════════════════
+// ADMIN — APPOINTMENTS
+// ══════════════════════════════
+
+// All appointments
+app.get(
+  "/api/admin/appointments",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (_req, res) => {
+    try {
+      if (pool) {
+        await initDb();
+        const result = await query(
+          `SELECT ga.*,
+                  c.name  AS customer_name,
+                  c.email AS customer_email,
+                  c.phone AS customer_phone
+           FROM guest_appointments ga
+           LEFT JOIN customers c ON c.id = ga.customer_id
+           ORDER BY ga.datetime ASC;`
+        );
+        return res.json({ ok: true, appointments: result.rows });
+      }
+      return res.json({ ok: true, appointments: memoryAppointments });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// Latest appointment (debug)
 app.get("/api/admin/appointments/latest", async (_req, res) => {
   try {
     if (pool) {
@@ -286,7 +135,6 @@ app.get("/api/admin/appointments/latest", async (_req, res) => {
       );
       return res.json({ ok: true, appointment: result.rows[0] || null });
     }
-
     return res.json({
       ok: true,
       appointment: memoryAppointments[memoryAppointments.length - 1] || null,
@@ -297,22 +145,347 @@ app.get("/api/admin/appointments/latest", async (_req, res) => {
   }
 });
 
-// ------------------------------
-// Start server
-// ------------------------------
-app.listen(PORT, async () => {
-  if (pool) {
+// ══════════════════════════════
+// ADMIN — TIME OFF
+// ══════════════════════════════
+
+// View all time-off requests
+app.get(
+  "/api/admin/time-off",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (_req, res) => {
     try {
-      await initDb();
-      console.log("DB ready ✅");
-    } catch (e) {
-      console.log("DB init failed — running anyway (check DATABASE_URL).");
-      console.error(e);
+      const result = await query(
+        `SELECT t.*, u.email AS hairdresser_email
+         FROM time_off_requests t
+         JOIN users u ON u.id = t.user_id
+         ORDER BY t.created_at DESC;`
+      );
+      return res.json({ ok: true, requests: result.rows });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
     }
   }
+);
 
-  console.log(`API running on http://localhost:${PORT}`);
-  console.log(`CORS allowed origin: ${CLIENT_ORIGIN}`);
-  console.log(`Try: http://localhost:${PORT}/health`);
-  console.log(`Try: http://localhost:${PORT}/services`);
+// Approve or deny a time-off request
+app.post(
+  "/api/admin/time-off/:id",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      const { status } = req.body || {};
+      if (!["approved", "denied"].includes(status)) {
+        return res.status(400).json({ ok: false, error: "status must be approved or denied" });
+      }
+      const result = await query(
+        `UPDATE time_off_requests SET status = $1 WHERE id = $2 RETURNING id, status;`,
+        [status, req.params.id]
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ ok: false, error: "Request not found" });
+      }
+      return res.json({ ok: true, request: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// ══════════════════════════════
+// EMPLOYEE — SCHEDULE
+// ══════════════════════════════
+
+app.get(
+  "/api/employee/schedule",
+  authRequired,
+  requireRole(["HAIRDRESSER", "OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      const result = await query(
+        `SELECT ga.*,
+                c.name  AS customer_name,
+                c.email AS customer_email,
+                c.phone AS customer_phone
+         FROM guest_appointments ga
+         LEFT JOIN customers c ON c.id = ga.customer_id
+         WHERE ga.assigned_staff_id = $1
+         ORDER BY ga.datetime ASC;`,
+        [req.user.id]
+      );
+      return res.json({ ok: true, appointments: result.rows });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// ══════════════════════════════
+// EMPLOYEE — TIME OFF
+// ══════════════════════════════
+
+// Submit a time-off request
+app.post(
+  "/api/employee/time-off",
+  authRequired,
+  requireRole(["HAIRDRESSER", "OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      const { start_date, end_date, note } = req.body || {};
+      if (!start_date || !end_date) {
+        return res.status(400).json({ ok: false, error: "start_date and end_date required" });
+      }
+      const result = await query(
+        `INSERT INTO time_off_requests (user_id, start_date, end_date, note)
+         VALUES ($1, $2, $3, $4)
+         RETURNING id, start_date, end_date, note, status, created_at;`,
+        [req.user.id, start_date, end_date, note || null]
+      );
+      return res.status(201).json({ ok: true, request: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// View own time-off requests
+app.get(
+  "/api/employee/time-off",
+  authRequired,
+  requireRole(["HAIRDRESSER", "OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      const result = await query(
+        `SELECT * FROM time_off_requests
+         WHERE user_id = $1
+         ORDER BY created_at DESC;`,
+        [req.user.id]
+      );
+      return res.json({ ok: true, requests: result.rows });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// ══════════════════════════════
+// GUEST BOOKINGS
+// ══════════════════════════════
+
+const memoryAppointments = [];
+
+app.post("/api/appointments", async (req, res) => {
+  try {
+    const { name, phone, email, serviceId, datetime } = req.body || {};
+    if (!name || !serviceId || !datetime) {
+      return res.status(400).json({ ok: false, error: "name, serviceId, datetime required" });
+    }
+    const svc = findService(serviceId);
+    if (!svc) return res.status(400).json({ ok: false, error: "Unknown serviceId" });
+    if (pool) await initDb();
+    const result = await createGuestAppointment({
+      query, pool, memoryAppointments,
+      payload: { name, phone, email, serviceId, serviceName: svc.name, datetime },
+    });
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
 });
+
+// Legacy alias
+app.post("/api/bookings", async (req, res) => {
+  try {
+    const { name, phone, service, datetime, email } = req.body || {};
+    const serviceId = service;
+    if (!name || !serviceId || !datetime) {
+      return res.status(400).json({ ok: false, error: "name, service, datetime required" });
+    }
+    const svc = findService(serviceId);
+    if (!svc) return res.status(400).json({ ok: false, error: "Unknown service" });
+    if (pool) await initDb();
+    const result = await createGuestAppointment({
+      query, pool, memoryAppointments,
+      payload: { name, phone, email, serviceId, serviceName: svc.name, datetime },
+    });
+    return res.status(result.status).json(result.body);
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
+// ══════════════════════════════
+// START SERVER
+// ══════════════════════════════
+
+// Initialize DB tables on startup
+if (pool) {
+  initDb()
+    .then(() => console.log("DB ready ✅"))
+    .catch((e) => console.error("DB init failed:", e));
+}
+
+// Local dev: start the server normally
+// Vercel: export the app as a serverless function
+if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
+  app.listen(PORT, () => {
+    console.log(`API running on http://localhost:${PORT}`);
+    console.log(`CORS allowed origin: ${CLIENT_ORIGIN}`);
+    console.log(`Try: http://localhost:${PORT}/health`);
+  });
+}
+
+module.exports = app;
+
+
+// ══════════════════════════════
+// EMPLOYEE — PROFILE
+// ══════════════════════════════
+
+// Get own profile
+app.get(
+  "/api/employee/profile",
+  authRequired,
+  async (req, res) => {
+    try {
+      const result = await query(
+        `SELECT email, display_name, phone, address FROM users WHERE id = $1;`,
+        [req.user.id]
+      );
+      return res.json({ ok: true, profile: result.rows[0] ?? null });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// Update own profile
+app.post(
+  "/api/employee/profile",
+  authRequired,
+  async (req, res) => {
+    try {
+      const { display_name, phone, address } = req.body || {};
+      await query(
+        `UPDATE users SET display_name = $1, phone = $2, address = $3 WHERE id = $4;`,
+        [display_name || null, phone || null, address || null, req.user.id]
+      );
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// Change own password
+app.post(
+  "/api/employee/change-password",
+  authRequired,
+  async (req, res) => {
+    try {
+      const { currentPassword, newPassword } = req.body || {};
+      if (!currentPassword || !newPassword) {
+        return res.status(400).json({ ok: false, error: "Both passwords required" });
+      }
+      if (newPassword.length < 8) {
+        return res.status(400).json({ ok: false, error: "Password must be at least 8 characters" });
+      }
+
+      const result = await query(
+        `SELECT password_hash FROM users WHERE id = $1;`,
+        [req.user.id]
+      );
+
+      const user = result.rows[0];
+      const bcrypt = require("bcrypt");
+      const valid = await bcrypt.compare(currentPassword, user.password_hash);
+      if (!valid) {
+        return res.status(401).json({ ok: false, error: "Current password is incorrect" });
+      }
+
+      const newHash = await bcrypt.hash(newPassword, 10);
+      await query(
+        `UPDATE users SET password_hash = $1, must_reset_password = false WHERE id = $2;`,
+        [newHash, req.user.id]
+      );
+
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// ══════════════════════════════
+// ADMIN — EMPLOYEE MANAGEMENT
+// ══════════════════════════════
+
+// Deactivate employee (soft delete — keeps all data)
+app.post(
+  "/api/admin/users/:id/deactivate",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      await query(
+        `UPDATE users SET is_active = false WHERE id = $1;`,
+        [req.params.id]
+      );
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// Reactivate employee
+app.post(
+  "/api/admin/users/:id/reactivate",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      await query(
+        `UPDATE users SET is_active = true WHERE id = $1;`,
+        [req.params.id]
+      );
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);
+
+// Permanently delete employee
+app.post(
+  "/api/admin/users/:id/delete",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      // Prevent deleting yourself
+      if (String(req.params.id) === String(req.user.id)) {
+        return res.status(400).json({ ok: false, error: "You cannot delete your own account" });
+      }
+      await query(`DELETE FROM users WHERE id = $1;`, [req.params.id]);
+      return res.json({ ok: true });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  }
+);

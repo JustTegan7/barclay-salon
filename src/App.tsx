@@ -4,9 +4,17 @@ import { Routes, Route, Navigate, Link, useLocation } from "react-router-dom";
 
 import { Navbar } from "./Components/Navbar";
 import { Footer } from "./Components/Footer";
+import Gallery from "./Components/Gallery";
 
 import ServicesPage from "./Pages/Services";
 import AboutPage from "./Pages/About";
+import ContactPage from "./Pages/Contact";
+import LoginPage from "./Pages/LoginPage";
+import Dashboard from "./Pages/Dashboard";
+import "./Pages/dashboard.css";
+
+import logo from "./assets/Barclays_logo.png";
+import heroPhoto from "./assets/gallery/9.jpg"; // coral balayage — vivid hero image
 
 import { apiGet, apiPost } from "./api/client";
 import type { Service } from "./types";
@@ -41,30 +49,21 @@ function formatLocal(dtIso: string) {
 
 const SHOP_URL = "https://shop.saloninteractive.com/store/BARCLAYSALON";
 
-/**
- * Scroll to hash on route changes (e.g. "/#services").
- * This is the missing glue between React Router and anchor sections.
- */
 const ScrollToHash: React.FC = () => {
   const { hash, pathname } = useLocation();
-
   useEffect(() => {
-    // only do hash scrolling on home page sections
     if (pathname !== "/") return;
     if (!hash) return;
-
     const id = hash.replace("#", "");
-    // Wait a tick for DOM to paint (important on first nav)
     window.setTimeout(() => {
       const el = document.getElementById(id);
       if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
     }, 0);
   }, [hash, pathname]);
-
   return null;
 };
 
-/** Landing page component */
+/** ── Home Page ─────────────────────────────────────────── */
 const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
   const [previewServices, setPreviewServices] = useState<Service[]>([]);
   const [previewLoading, setPreviewLoading] = useState(false);
@@ -72,17 +71,12 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
 
   useEffect(() => {
     let cancelled = false;
-
     (async () => {
       try {
         setPreviewLoading(true);
         setPreviewError("");
-
         const data = await apiGet<Service[]>("/services");
-
-        if (!cancelled) {
-          setPreviewServices((data ?? []).slice(0, 6));
-        }
+        if (!cancelled) setPreviewServices((data ?? []).slice(0, 6));
       } catch (e) {
         console.error(e);
         if (!cancelled)
@@ -91,7 +85,6 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
         if (!cancelled) setPreviewLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
@@ -99,122 +92,109 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
 
   return (
     <main className="app-main">
-      {/* HERO */}
+      {/* ── HERO ── */}
       <section className="hero" id="home">
         <div className="hero-grid">
           <div>
-            <p className="hero-intro-eyebrow">
-              Everett&apos;s color destination
-            </p>
+            <p className="hero-intro-eyebrow">Everett's color destination</p>
             <h1 className="hero-title">
               Lived-in color &amp; modern cuts,
               <span className="hero-highlight"> tailored to you.</span>
             </h1>
             <p className="hero-tagline">
-              Barclay&apos;s Salon is a family-owned Redken Club 5th Avenue
-              salon, trusted for color excellence, healthy hair, and warm
-              service since 1977.
+              Barclay's Salon is a family-owned Redken Club 5th Avenue salon,
+              trusted for color excellence, healthy hair, and warm service since
+              1977.
             </p>
+
+            <img src={logo} alt="Barclay's Salon Logo" className="hero-logo" />
 
             <div className="hero-cta-row">
               <button
                 type="button"
-                className="btn-primary"
+                className="btn-hero-primary"
                 onClick={onQuickBook}
               >
-                <span>✂</span>
-                <span>Quick Book</span>
+                ✂ Book Your Appointment
               </button>
-
-              <a
-                className="btn-outline"
-                href={SHOP_URL}
-                target="_blank"
-                rel="noreferrer"
-                aria-label="Open Barclay's Salon online shop in a new tab"
-              >
-                <span>🛍️</span>
-                <span>Shop Online</span>
-              </a>
-
-              <span style={{ fontSize: "0.8rem", opacity: 0.8 }}>
-                Consults for color corrections &amp; transformations available.
-              </span>
+              <Link className="btn-outline" to="/services">
+                View Services
+              </Link>
             </div>
 
+            <p className="hero-book-note">
+              Online booking takes less than 60 seconds.
+            </p>
+
             <div className="hero-meta">
-              <span>• Family owned in Everett since 1977</span>
-              <span>• Redken &amp; Pureology products</span>
-              <span>• Ongoing advanced education for stylists</span>
+              <span>Family-owned in Everett since 1977</span>
+              <span>Redken &amp; Pureology products</span>
+              <span>Ongoing advanced education for stylists</span>
             </div>
           </div>
 
-          <aside className="hero-card" aria-label="About Barclay's Salon">
-            <div>
-              <div className="hero-card-heading">Color • Style • Care</div>
-              <p className="hero-card-body">
-                Barclay&apos;s Salon has earned a reputation for excellence in
-                color services and the latest trends in hair design. Our
-                stylists invest in continued education so every appointment
-                feels like a small upgrade to your everyday.
-              </p>
-
-              <p className="hero-card-body" style={{ marginTop: "0.75rem" }}>
-                From dimensional blondes to rich brunettes and lived-in,
-                low-maintenance color, we focus on healthy, wearable hair that
-                fits your lifestyle.
-              </p>
-            </div>
-
-            <div className="chip-row">
-              <span className="chip">Redken Club 5th Avenue</span>
-              <span className="chip">Pureology color protection</span>
-              <span className="chip">Custom color &amp; cuts</span>
+          <aside className="hero-photo-card" aria-label="Salon work example">
+            <img src={heroPhoto} alt="Custom color work by Barclay's Salon" />
+            <div className="hero-photo-card-badge">
+              Custom color · Everett, WA
             </div>
           </aside>
         </div>
       </section>
 
-      {/* ABOUT (home section) */}
-      <section className="section" id="about">
-        <h2 className="section-heading">About Barclay&apos;s Salon</h2>
-        <p className="section-body">
-          Since 1977, Barclay&apos;s Salon has been part of the Everett
-          community as a family-owned salon focused on beautiful, healthy hair.
-          We&apos;ve been a Redken Club 5th Avenue salon for over 30 years and
-          proudly use Redken and Pureology products for their proven color
-          protection and hair care.
+      {/* ── ABOUT (home section) ── */}
+      <section
+        className="section"
+        id="about"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        <p className="about-eyebrow" style={{ marginBottom: "0.875rem" }}>
+          Our story
         </p>
-        <p className="section-muted">
+        <h2 className="section-heading">About Barclay's Salon</h2>
+        <p className="section-body">
+          Since 1977, Barclay's Salon has been part of the Everett community as
+          a family-owned salon focused on beautiful, healthy hair. We've been a
+          Redken Club 5th Avenue salon for over 30 years and proudly use Redken
+          and Pureology products for their proven color protection and hair
+          care.
+        </p>
+        <p className="section-body">
           Education is at the heart of what we do. Our team attends events like
           Redken Symposium in Las Vegas and other national shows throughout the
           year, bringing back fresh techniques and trend inspiration to every
           guest who sits in our chairs.
         </p>
-
         <div
           style={{
-            marginTop: "14px",
             display: "flex",
             gap: "12px",
             flexWrap: "wrap",
+            marginTop: "1.5rem",
           }}
         >
           <Link className="btn-outline" to="/about">
-            Read the full About page
+            Read Our Story
           </Link>
           <button type="button" className="btn-primary" onClick={onQuickBook}>
-            Quick Book
+            Book Now
           </button>
         </div>
       </section>
 
-      {/* SERVICES PREVIEW */}
-      <section className="section" id="services">
+      {/* ── SERVICES PREVIEW ── */}
+      <section
+        className="section"
+        id="services"
+        style={{ borderTop: "1px solid var(--border)" }}
+      >
+        <p className="about-eyebrow" style={{ marginBottom: "0.875rem" }}>
+          Menu preview
+        </p>
         <h2 className="section-heading">Services</h2>
         <p className="section-body">
-          A quick peek at our menu. For the full service list (with categories),
-          visit the Services page.
+          A quick peek at our menu. For the full list with all categories and
+          pricing, visit the Services page.
         </p>
 
         {previewError ? (
@@ -225,13 +205,68 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
           <p className="section-muted" style={{ marginTop: "10px" }}>
             Loading preview…
           </p>
-        ) : (
-          <div className="placeholder-rail" style={{ marginTop: "12px" }}>
+        ) : previewServices.length > 0 ? (
+          <div className="placeholder-rail">
             {previewServices.map((s) => (
               <div key={s.id} className="placeholder-card">
-                <div style={{ fontWeight: 800 }}>{s.name}</div>
-                <div className="section-muted" style={{ marginTop: "6px" }}>
-                  {s.category} • ${Math.round(s.base_price_cents / 100)}
+                <div>{s.name}</div>
+                <div
+                  className="section-muted"
+                  style={{ marginTop: "6px", fontSize: "13px" }}
+                >
+                  {s.category} · ${Math.round(s.base_price_cents / 100)}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          /* Static fallback when API hasn't loaded */
+          <div className="placeholder-rail">
+            {[
+              { name: "Haircut – Short", cat: "Haircuts", price: "$61+" },
+              {
+                name: "Full Foil Custom Blonding",
+                cat: "Color",
+                price: "$148+",
+              },
+              { name: "Full Balayage Service", cat: "Color", price: "$161+" },
+              { name: "Brazilian Blowout", cat: "Texture", price: "$310+" },
+              {
+                name: "Full Balayage Custom Package",
+                cat: "Packages",
+                price: "$312+",
+              },
+              { name: "Brow Wax", cat: "Waxing", price: "$23+" },
+            ].map((s) => (
+              <div key={s.name} className="placeholder-card">
+                <div
+                  style={{
+                    fontSize: "10px",
+                    letterSpacing: "0.1em",
+                    textTransform: "uppercase",
+                    color: "var(--muted)",
+                    marginBottom: "6px",
+                  }}
+                >
+                  {s.cat}
+                </div>
+                <div
+                  style={{
+                    fontSize: "14px",
+                    color: "var(--text)",
+                    marginBottom: "8px",
+                  }}
+                >
+                  {s.name}
+                </div>
+                <div
+                  style={{
+                    fontFamily: "var(--serif)",
+                    fontSize: "22px",
+                    color: "var(--gold)",
+                  }}
+                >
+                  {s.price}
                 </div>
               </div>
             ))}
@@ -240,76 +275,76 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
 
         <div
           style={{
-            marginTop: "16px",
             display: "flex",
             gap: "12px",
             flexWrap: "wrap",
+            marginTop: "1.5rem",
           }}
         >
           <Link className="btn-outline" to="/services">
-            View Full Service Menu
+            View Full Menu →
           </Link>
-
-          <button type="button" className="btn-primary" onClick={onQuickBook}>
-            Quick Book
-          </button>
         </div>
       </section>
 
-      {/* SHOP (home section) */}
-      <section className="section" id="shop">
-        <h2 className="section-heading">Shop Online</h2>
-        <p className="section-body">
-          Shop Barclay&apos;s Salon&apos;s current online store (hosted
-          externally for now). We&apos;ll migrate to a fully owned storefront
-          later — this gets you live and selling today.
-        </p>
+      {/* ── GALLERY ── */}
+      <Gallery />
 
-        <div style={{ display: "flex", gap: "12px", flexWrap: "wrap" }}>
+      {/* ── SHOP ── */}
+      <section
+        className="section"
+        id="shop"
+        style={{
+          borderTop: "1px solid var(--border)",
+          background: "var(--surface)",
+        }}
+      >
+        <p className="about-eyebrow" style={{ marginBottom: "0.875rem" }}>
+          Professional retail
+        </p>
+        <h2 className="section-heading">Shop Redken &amp; Pureology</h2>
+        <p className="section-body">
+          Browse our curated selection of professional haircare products — the
+          same brands our stylists trust every day in the salon.
+        </p>
+        <div
+          style={{
+            display: "flex",
+            gap: "12px",
+            flexWrap: "wrap",
+            marginTop: "1.5rem",
+          }}
+        >
           <a
             className="btn-primary"
             href={SHOP_URL}
             target="_blank"
             rel="noreferrer"
           >
-            <span>🛍️</span>
-            <span>Open Online Shop</span>
+            Visit Our Shop ↗
           </a>
-
-          <Link className="btn-outline" to="/services">
-            Browse Services
-          </Link>
         </div>
-
-        <p className="section-muted" style={{ marginTop: "12px" }}>
-          Note: The current provider takes a larger cut of profits — the short
-          term win is speed. Once the site is live and you&apos;ve presented it,
-          we can replace this with a Shopify/Stripe store.
-        </p>
       </section>
     </main>
   );
 };
 
+/** ── App Root ───────────────────────────────────────────── */
 const App: React.FC = () => {
   const [isBookingOpen, setIsBookingOpen] = useState(false);
 
-  // Loaded from backend
   const [services, setServices] = useState<Service[]>([]);
   const [servicesLoading, setServicesLoading] = useState(false);
   const [servicesError, setServicesError] = useState<string>("");
 
-  // Form state
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
-
   const [preferredDateTime, setPreferredDateTime] = useState("");
   const [serviceId, setServiceId] = useState<string>("");
 
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState("");
-
   const [createdAppointment, setCreatedAppointment] =
     useState<Appointment | null>(null);
 
@@ -332,24 +367,20 @@ const App: React.FC = () => {
     setCreatedAppointment(null);
   };
 
-  // Fetch services when booking modal opens
   useEffect(() => {
     if (!isBookingOpen) return;
-
     let cancelled = false;
-
     (async () => {
       try {
         setServicesLoading(true);
         setServicesError("");
-
         const data = await apiGet<Service[]>("/services");
         if (!cancelled) setServices(data);
       } catch (e) {
         console.error(e);
         if (!cancelled) {
           setServicesError(
-            "Could not load services. Check backend + VITE_API_URL."
+            "Could not load services. Check backend + VITE_API_URL.",
           );
           setServices([]);
         }
@@ -357,7 +388,6 @@ const App: React.FC = () => {
         if (!cancelled) setServicesLoading(false);
       }
     })();
-
     return () => {
       cancelled = true;
     };
@@ -365,25 +395,21 @@ const App: React.FC = () => {
 
   const servicesByCategory = useMemo(() => {
     const map = new Map<string, Service[]>();
-
     for (const s of services) {
       const arr = map.get(s.category) ?? [];
       arr.push(s);
       map.set(s.category, arr);
     }
-
     for (const [cat, arr] of map.entries()) {
       arr.sort((a, b) => a.name.localeCompare(b.name));
       map.set(cat, arr);
     }
-
     return map;
   }, [services]);
 
   async function submitAppointment() {
     setSubmitError("");
     setCreatedAppointment(null);
-
     if (!name.trim()) return setSubmitError("Please enter your name.");
     if (!serviceId) return setSubmitError("Please select a service.");
     if (!preferredDateTime)
@@ -393,7 +419,6 @@ const App: React.FC = () => {
 
     try {
       setSubmitLoading(true);
-
       const res = await apiPost<CreateAppointmentResponse>(
         "/api/appointments",
         {
@@ -402,19 +427,16 @@ const App: React.FC = () => {
           email: email.trim() || undefined,
           serviceId,
           datetime: iso,
-        }
+        },
       );
-
-      if (!res.ok || !res.appointment?.id) {
+      if (!res.ok || !res.appointment?.id)
         throw new Error(res.error || "Booking failed.");
-      }
-
       setCreatedAppointment(res.appointment);
       resetForm();
     } catch (e) {
       console.error(e);
       setSubmitError(
-        e instanceof Error ? e.message : "Booking failed. Please try again."
+        e instanceof Error ? e.message : "Booking failed. Please try again.",
       );
     } finally {
       setSubmitLoading(false);
@@ -424,27 +446,24 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <ScrollToHash />
-
       <Navbar onQuickBook={openBooking} />
 
       <Routes>
         <Route path="/" element={<HomePage onQuickBook={openBooking} />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/contact" element={<ContactPage />} />
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/dashboard" element={<Dashboard />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       <Footer />
 
-      {/* Booking modal */}
+      {/* ── Booking Modal ── */}
       {isBookingOpen && (
         <div className="modal-backdrop" onClick={closeBooking}>
-          <div
-            className="modal"
-            onClick={(e) => {
-              e.stopPropagation();
-            }}
-          >
+          <div className="modal" onClick={(e) => e.stopPropagation()}>
             <div className="modal-header">
               <h2 className="modal-title">Quick Book Request</h2>
               <button
@@ -458,29 +477,36 @@ const App: React.FC = () => {
             </div>
 
             <div className="modal-body">
-              <p>
-                Submit a request and we&apos;ll follow up to confirm details.
-              </p>
+              <p>Submit a request and we'll follow up to confirm details.</p>
 
               {servicesError && (
-                <p className="modal-note" style={{ marginTop: "0.75rem" }}>
+                <p className="modal-note" style={{ marginBottom: "1rem" }}>
                   <strong>{servicesError}</strong>
                 </p>
               )}
-
               {submitError && (
-                <p className="modal-note" style={{ marginTop: "0.75rem" }}>
+                <p
+                  className="modal-note"
+                  style={{ marginBottom: "1rem", color: "#c0392b" }}
+                >
                   <strong>{submitError}</strong>
                 </p>
               )}
 
               {createdAppointment ? (
                 <div className="modal-note" style={{ marginTop: "0.75rem" }}>
-                  <div style={{ fontWeight: 800, marginBottom: "0.35rem" }}>
+                  <div
+                    style={{
+                      fontWeight: 500,
+                      marginBottom: "0.5rem",
+                      fontSize: "15px",
+                    }}
+                  >
                     ✅ Request received
                   </div>
-
-                  <div style={{ display: "grid", gap: "6px" }}>
+                  <div
+                    style={{ display: "grid", gap: "6px", fontSize: "14px" }}
+                  >
                     <div>
                       <strong>Service:</strong>{" "}
                       {createdAppointment.service_name}
@@ -497,9 +523,12 @@ const App: React.FC = () => {
                       <code>{createdAppointment.id}</code>
                     </div>
                   </div>
-
                   <div
-                    style={{ display: "flex", gap: "12px", marginTop: "14px" }}
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      marginTop: "1.25rem",
+                    }}
                   >
                     <button
                       type="button"
@@ -511,7 +540,6 @@ const App: React.FC = () => {
                     >
                       Book another
                     </button>
-
                     <button
                       type="button"
                       className="btn-outline"
@@ -520,7 +548,6 @@ const App: React.FC = () => {
                       Close
                     </button>
                   </div>
-
                   <p className="section-muted" style={{ marginTop: "12px" }}>
                     Need a faster change? Call <strong>425-353-1244</strong>.
                   </p>
@@ -537,7 +564,6 @@ const App: React.FC = () => {
                         onChange={(e) => setName(e.target.value)}
                       />
                     </div>
-
                     <div>
                       <div className="modal-label">Phone (optional)</div>
                       <input
@@ -547,7 +573,6 @@ const App: React.FC = () => {
                         onChange={(e) => setPhone(e.target.value)}
                       />
                     </div>
-
                     <div>
                       <div className="modal-label">Email (optional)</div>
                       <input
@@ -557,9 +582,10 @@ const App: React.FC = () => {
                         onChange={(e) => setEmail(e.target.value)}
                       />
                     </div>
-
                     <div>
-                      <div className="modal-label">Preferred date & time</div>
+                      <div className="modal-label">
+                        Preferred date &amp; time
+                      </div>
                       <input
                         className="modal-input"
                         type="datetime-local"
@@ -567,7 +593,6 @@ const App: React.FC = () => {
                         onChange={(e) => setPreferredDateTime(e.target.value)}
                       />
                     </div>
-
                     <div>
                       <div className="modal-label">Service interest</div>
                       <select
@@ -580,10 +605,9 @@ const App: React.FC = () => {
                           {servicesLoading
                             ? "Loading services..."
                             : services.length === 0
-                            ? "No services loaded (check API)"
-                            : "Select a service"}
+                              ? "Select a service"
+                              : "Select a service"}
                         </option>
-
                         {[...servicesByCategory.entries()].map(
                           ([category, items]) => (
                             <optgroup key={category} label={category}>
@@ -594,22 +618,18 @@ const App: React.FC = () => {
                                 </option>
                               ))}
                             </optgroup>
-                          )
+                          ),
                         )}
                       </select>
-
-                      <div
-                        className="section-muted"
-                        style={{ marginTop: "0.5rem" }}
-                      >
-                        Loaded services: <strong>{services.length}</strong>
-                        {servicesError ? ` • Error: ${servicesError}` : ""}
-                      </div>
                     </div>
                   </div>
 
                   <div
-                    style={{ display: "flex", gap: "12px", marginTop: "16px" }}
+                    style={{
+                      display: "flex",
+                      gap: "12px",
+                      marginTop: "1.5rem",
+                    }}
                   >
                     <button
                       type="button"
@@ -617,9 +637,8 @@ const App: React.FC = () => {
                       onClick={submitAppointment}
                       disabled={submitLoading || servicesLoading}
                     >
-                      {submitLoading ? "Submitting..." : "Submit Request"}
+                      {submitLoading ? "Submitting…" : "Submit Request"}
                     </button>
-
                     <button
                       type="button"
                       className="btn-outline"
@@ -629,7 +648,7 @@ const App: React.FC = () => {
                     </button>
                   </div>
 
-                  <p className="modal-note" style={{ marginTop: "16px" }}>
+                  <p className="modal-note" style={{ marginTop: "1.25rem" }}>
                     Until full real-time scheduling is live, please call{" "}
                     <strong>425-353-1244</strong> to book or adjust an
                     appointment.

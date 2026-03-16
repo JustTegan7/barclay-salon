@@ -46,9 +46,3 @@ export async function apiPost<T>(
 
   return res.json();
 }
-
-// Debug: confirm this exact file is being served
-console.log("frontend client.ts loaded ✅", {
-  hasApiPost: typeof apiPost === "function",
-  API_URL,
-});

@@ -6,16 +6,17 @@ export const Footer: React.FC = () => {
       <div className="footer-inner">
         {/* Address + Map */}
         <div>
-          <div className="footer-heading">Barclay&apos;s Salon</div>
+          <div className="footer-heading">Barclay's Salon</div>
           <div className="footer-subtle">
             320 112th Street Southwest
             <br />
             Everett, WA 98204
             <br />
-            425-353-1244
+            <a href="tel:4253531244" style={{ color: "inherit" }}>
+              425-353-1244
+            </a>
           </div>
 
-          {/* Embedded Google Map */}
           <div className="footer-map" aria-label="Map to Barclay's Salon">
             <iframe
               title="Barclay's Salon Location"
@@ -64,7 +65,7 @@ export const Footer: React.FC = () => {
               rel="noreferrer"
               aria-label="Barclay's Salon on Facebook"
             >
-              Facebook
+              Facebook ↗
             </a>
             <a
               href="https://www.instagram.com/barclayssalon/"
@@ -72,17 +73,23 @@ export const Footer: React.FC = () => {
               rel="noreferrer"
               aria-label="Barclay's Salon on Instagram"
             >
-              Instagram
+              Instagram ↗
+            </a>
+            <a
+              href="https://shop.saloninteractive.com/store/BARCLAYSALON"
+              target="_blank"
+              rel="noreferrer"
+              aria-label="Barclay's Salon online shop"
+              style={{ color: "var(--gold)", marginTop: "0.5rem" }}
+            >
+              Shop Online ↗
             </a>
           </div>
         </div>
       </div>
 
       <div className="footer-bottom">
-        <span>
-          © {new Date().getFullYear()} Barclay&apos;s Salon. All rights
-          reserved.
-        </span>
+        <span>© {new Date().getFullYear()} Barclay's Salon. All rights reserved.</span>
         <span>Color, cut &amp; care specialists in Everett, WA.</span>
       </div>
     </footer>

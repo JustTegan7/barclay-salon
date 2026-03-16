@@ -1,0 +1,253 @@
+/* ─────────────────────────────────────
+   DASHBOARD SHARED STYLES
+   Add these to your main CSS file
+───────────────────────────────────── */
+
+.dashboard-page {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 3rem 2.5rem 5rem;
+}
+
+@media (max-width: 640px) {
+  .dashboard-page { padding: 2rem 1.25rem 4rem; }
+}
+
+.dashboard-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 2.25rem;
+  padding-bottom: 1.75rem;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.dashboard-eyebrow {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #b4945a;
+  margin-bottom: 6px;
+}
+
+.dashboard-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.25rem;
+  font-weight: 300;
+  color: #1a1a1a;
+  line-height: 1.1;
+}
+
+.dashboard-subtitle {
+  font-size: 12px;
+  color: #aaa;
+  margin-top: 4px;
+}
+
+.dashboard-error {
+  background: #fce4ec;
+  color: #c62828;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  font-size: 13px;
+  margin-bottom: 1.25rem;
+}
+
+.dashboard-empty {
+  font-size: 14px;
+  color: #ccc;
+  padding: 3rem 0;
+  text-align: center;
+}
+
+/* ── Stat cards ── */
+.stat-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 12px;
+  margin-bottom: 2.25rem;
+}
+
+.stat-card {
+  background: #fafaf8;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  padding: 1.1rem 1.35rem;
+}
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: #bbb;
+  margin-bottom: 8px;
+}
+
+.stat-value {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 2.25rem;
+  font-weight: 300;
+  color: #1a1a1a;
+  line-height: 1;
+}
+
+/* ── Tabs ── */
+.tab-row {
+  display: flex;
+  border-bottom: 1px solid #e8e8e8;
+  margin-bottom: 1.75rem;
+}
+
+.tab-btn {
+  background: none;
+  border: none;
+  padding: 0.75rem 1.35rem;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.03em;
+  color: #bbb;
+  cursor: pointer;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s, border-color 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-family: inherit;
+}
+
+.tab-btn:hover { color: #1a1a1a; }
+.tab-active { color: #1a1a1a !important; border-bottom-color: #b4945a !important; }
+
+.tab-badge {
+  background: #b4945a;
+  color: #fff;
+  font-size: 9px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  line-height: 1.5;
+}
+
+/* ── Section labels ── */
+.section-label {
+  font-size: 9px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: #ccc;
+  margin-bottom: 10px;
+}
+
+/* ── Appointment cards ── */
+.appt-list { display: flex; flex-direction: column; gap: 10px; }
+
+.appt-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  background: #fff;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  padding: 1.1rem 1.35rem;
+  transition: border-color 0.15s;
+}
+
+.appt-card:hover { border-color: #d5d5d5; }
+.appt-card-past { opacity: 0.5; }
+
+.appt-main { display: flex; flex-direction: column; gap: 3px; }
+.appt-service { font-size: 14px; font-weight: 500; color: #1a1a1a; }
+.appt-datetime { font-size: 12px; color: #aaa; }
+.appt-client { font-size: 13px; color: #666; margin-top: 3px; }
+.appt-client-sub { font-size: 12px; color: #bbb; }
+.appt-client-sub a { color: #b4945a; text-decoration: none; }
+.appt-actions { display: flex; gap: 8px; flex-shrink: 0; align-items: center; }
+
+/* ── Badges ── */
+.badge {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  padding: 4px 11px;
+  border-radius: 4px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.badge-pending   { background: #fff8e1; color: #e65100; }
+.badge-confirmed { background: #e8f5e9; color: #2e7d32; }
+.badge-cancelled { background: #fce4ec; color: #c62828; }
+.badge-completed { background: #e3f2fd; color: #1565c0; }
+
+/* ── Approve / Deny ── */
+.btn-approve {
+  font-size: 11px; font-weight: 600; padding: 6px 14px;
+  border-radius: 5px; border: 1px solid #a5d6a7;
+  color: #2e7d32; background: #e8f5e9;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-approve:hover { background: #c8e6c9; }
+
+.btn-deny {
+  font-size: 11px; font-weight: 600; padding: 6px 14px;
+  border-radius: 5px; border: 1px solid #ef9a9a;
+  color: #c62828; background: #fce4ec;
+  cursor: pointer; font-family: inherit; transition: background 0.15s;
+}
+.btn-deny:hover { background: #f8bbd0; }
+
+/* ── Forms inside dashboard ── */
+.timeoff-form {
+  background: #fafaf8;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  padding: 1.5rem 1.75rem;
+  margin-bottom: 1.75rem;
+  max-width: 580px;
+}
+
+.form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+
+@media (max-width: 500px) {
+  .form-row { grid-template-columns: 1fr; }
+}
+
+.form-success {
+  font-size: 13px; color: #2e7d32;
+  background: #e8f5e9; padding: 0.65rem 1rem;
+  border-radius: 5px; margin-top: 0.75rem;
+}
+
+/* ── Buttons ── */
+.btn-primary {
+  background: #1a1a1a; color: #fff; border: none;
+  padding: 11px 26px; font-size: 10px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  border-radius: 5px; cursor: pointer; font-family: inherit;
+  transition: background 0.15s;
+}
+.btn-primary:hover { background: #333; }
+.btn-primary:disabled { background: #ccc; cursor: not-allowed; }
+
+.btn-outline {
+  font-size: 10px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: #888; background: #fff;
+  border: 1px solid #e0e0e0; padding: 9px 20px;
+  border-radius: 5px; cursor: pointer; font-family: inherit;
+  transition: border-color 0.15s, color 0.15s; white-space: nowrap;
+}
+.btn-outline:hover { border-color: #aaa; color: #1a1a1a; }
+
+/* ── Section animation ── */
+.dashboard-section { animation: fadeIn 0.18s ease; }
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}

@@ -1,175 +1,61 @@
-# Barclay Salon — Booking System
+# Barclay's Salon
 
-A full‑stack salon booking system built to support **guest appointment requests**, with a clean upgrade path to staff scheduling, authentication, and payments.
-
-This project was built as a real‑world production exercise: ship something useful first, then design for growth.
-
----
-
-## What This Project Does
-
-**Today (V1)**
-
-- Customers can browse services
-- Submit a booking request (no account required)
-- Requests are persisted to PostgreSQL
-- Staff can view appointments via admin endpoints
-
-**Designed for V2+**
-
-- Staff & customer authentication (JWT + RBAC already scaffolded)
-- Hairdresser availability & time‑off
-- Conflict‑aware scheduling
-- Payments and paystubs
-
----
+Family-owned Redken Club 5th Avenue salon in Everett, WA since 1977.
 
 ## Tech Stack
 
-**Frontend**
+- **Frontend**: React + TypeScript + Vite
+- **Backend**: Node.js + Express
+- **Database**: PostgreSQL (Neon hosted)
+- **Hosting**: Vercel (frontend + backend)
+- **Auth**: JWT with role-based access (ADMIN, OWNER, HAIRDRESSER)
 
-- React + TypeScript (Vite)
-- Fetch‑based API client
-- Component‑driven UI with modal booking flow
+## Local Development
 
-**Backend**
+### Prerequisites
+- Node.js 18+
+- PostgreSQL running locally
 
-- Node.js + Express
-- PostgreSQL (with in‑memory fallback for dev)
-- pg Pool for DB access
-- JWT auth scaffolding (not enforced in V1)
-
----
-
-## Architecture Overview
-
-```
-Frontend (Vite + React)
-   ↓ JSON
-Express API
-   ↓ SQL
-PostgreSQL
-```
-
-Key design choice: **guest bookings first**. No auth required to request an appointment, reducing friction and increasing conversion.
-
----
-
-## Project Structure
-
-```
-barclay-salon/
-├── src/                  # Frontend (React)
-│   ├── api/              # API client
-│   ├── Components/       # UI components
-│   ├── Pages/            # Route-level pages
-│   ├── data/             # Service catalog
-│   └── Styles/
-│
-├── Backend/
-│   ├── src/
-│   │   ├── server.js     # Express entrypoint
-│   │   ├── db.js         # Postgres + schema init
-│   │   ├── bookingController.js
-│   │   └── authMiddleware.js
-│   ├── sql/schema.sql    # Full future schema
-│   └── .env.example
-│
-└── docker-compose.yml
-```
-
----
-
-## Getting Started (Local Dev)
-
-### 1. Clone the repo
-
+### Frontend
 ```bash
-git clone https://github.com/yourusername/barclay-salon.git
-cd barclay-salon
-```
-
-### 2. Backend setup
-
-```bash
-cd Backend
-cp .env.example .env
 npm install
 npm run dev
 ```
 
-Required env vars:
+### Backend
+```bash
+cd Backend
+npm install
+npm run dev
+```
 
+### Environment Variables
+
+**Frontend** (`.env` in project root):
+```
+VITE_API_URL=http://localhost:4000
+```
+
+**Backend** (`Backend/.env`):
 ```
 PORT=4000
 CLIENT_ORIGIN=http://localhost:5173
-DATABASE_URL=postgres://postgres:password@localhost:5432/barclay
-JWT_SECRET=dev_secret
+JWT_SECRET=your-secret-here
+DATABASE_URL=postgresql://...
 ```
 
-### 3. Frontend setup
+## Deployment
 
-```bash
-npm install
-npm run dev
-```
+See `DEPLOY.md` for full Vercel deployment instructions.
 
-Frontend runs on: [http://localhost:5173](http://localhost:5173)
-Backend runs on: [http://localhost:4000](http://localhost:4000)
+## Roles
 
----
+| Role | Access |
+|------|--------|
+| ADMIN | Full access — all appointments, manage staff, approve time off |
+| OWNER | Same as ADMIN |
+| HAIRDRESSER | Own schedule, time-off requests, profile |
 
-## API Endpoints (V1)
+## Contact
 
-- `GET /health`
-- `GET /services`
-- `POST /api/appointments`
-- `GET /api/admin/appointments`
-
-Example booking request:
-
-```json
-{
-  "name": "Jane Doe",
-  "email": "jane@example.com",
-  "serviceId": "all-over-color",
-  "datetime": "2026-07-02T07:15:00Z"
-}
-```
-
----
-
-## Database Notes
-
-- Uses PostgreSQL when `DATABASE_URL` is present
-- Falls back to in‑memory storage if DB is unavailable
-- `schema.sql` contains the **future full schema**
-- `initDb()` creates only minimal V1 tables automatically
-
-This keeps development fast while preserving a clean migration path.
-
----
-
-## What This Project Demonstrates
-
-- End‑to‑end feature ownership (frontend → backend → DB)
-- Pragmatic system design (ship V1, design for V2)
-- API design with backward compatibility
-- Defensive error handling and logging
-- Real‑world booking constraints
-
----
-
-## Planned Improvements
-
-- Replace mock services with DB‑backed services
-- Enforce auth on admin routes
-- Time‑slot conflict detection
-- Hairdresser scheduling UI
-- Email confirmations
-
----
-
-## License
-
-MIT
+Barclay's Salon · 320 112th Street SW, Everett WA 98204 · 425-353-1244
