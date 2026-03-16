@@ -1,5 +1,10 @@
 {
   "version": 2,
+  "functions": {
+    "Backend/src/server.js": {
+      "runtime": "@vercel/node@3.0.7"
+    }
+  },
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/Backend/src/server.js" },
     { "source": "/health", "destination": "/Backend/src/server.js" },
