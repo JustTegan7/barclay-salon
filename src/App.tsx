@@ -14,7 +14,7 @@ import Dashboard from "./Pages/Dashboard";
 import "./Pages/dashboard.css";
 
 import logo from "./assets/Barclays_logo.png";
-import heroPhoto from "./assets/gallery/9.jpg"; // coral balayage — vivid hero image
+import heroPhoto from "./assets/Gallery/9.jpg"; // coral balayage — vivid hero image
 
 import { apiGet, apiPost } from "./api/client";
 import type { Service } from "./types";
