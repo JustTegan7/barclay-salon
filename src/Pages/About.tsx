@@ -1,9 +1,9 @@
 import React, { useState } from "react";
 
-import strip1 from "../assets/gallery/1.jpg";
-import strip2 from "../assets/gallery/4.jpg";
-import strip3 from "../assets/gallery/7.jpg";
-import strip4 from "../assets/gallery/8.jpg";
+import strip1 from "../assets/Gallery/1.jpg";
+import strip2 from "../assets/Gallery/4.jpg";
+import strip3 from "../assets/Gallery/7.jpg";
+import strip4 from "../assets/Gallery/8.jpg";
 
 import photoRyan from "../assets/empPhotos/Ryan-Photo.jpg";
 import photoMaryMichael from "../assets/empPhotos/Mary-Michael-Photo.jpg";

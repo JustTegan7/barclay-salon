@@ -1,15 +1,15 @@
 import React, { useRef, useState } from "react";
 
-import g1 from "../assets/gallery/1.jpg";
-import g2 from "../assets/gallery/2.jpg";
-import g3 from "../assets/gallery/3.jpg";
-import g4 from "../assets/gallery/4.jpg";
-import g5 from "../assets/gallery/5.jpg";
-import g6 from "../assets/gallery/6.jpg";
-import g7 from "../assets/gallery/7.jpg";
-import g8 from "../assets/gallery/8.jpg";
-import g9 from "../assets/gallery/9.jpg";
-import g10 from "../assets/gallery/10.jpg";
+import g1 from "../assets/Gallery/1.jpg";
+import g2 from "../assets/Gallery/2.jpg";
+import g3 from "../assets/Gallery/3.jpg";
+import g4 from "../assets/Gallery/4.jpg";
+import g5 from "../assets/Gallery/5.jpg";
+import g6 from "../assets/Gallery/6.jpg";
+import g7 from "../assets/Gallery/7.jpg";
+import g8 from "../assets/Gallery/8.jpg";
+import g9 from "../assets/Gallery/9.jpg";
+import g10 from "../assets/Gallery/10.jpg";
 
 const photos = [
   { src: g3, alt: "Bold black and red fashion color" },
@@ -31,14 +31,12 @@ const Gallery: React.FC = () => {
   const dragStart = useRef({ x: 0, scrollLeft: 0 });
   const didDrag = useRef(false);
 
-  // Arrow scroll
   function scroll(dir: "left" | "right") {
     const el = trackRef.current;
     if (!el) return;
     el.scrollBy({ left: dir === "right" ? 480 : -480, behavior: "smooth" });
   }
 
-  // Mouse drag scroll
   function onMouseDown(e: React.MouseEvent) {
     const el = trackRef.current;
     if (!el) return;
@@ -124,7 +122,6 @@ const Gallery: React.FC = () => {
         </div>
       </div>
 
-      {/* Lightbox */}
       {lightbox && (
         <div
           className="gallery-lightbox"
