@@ -94,3 +94,13 @@ export interface AvailableSlotsResponse {
   service_duration_minutes: number;
   slots: string[]; // ISO datetimes (start times)
 }
+/** Matches: servicesCatalog.ts */
+export interface ServiceCatalogItem {
+  id: string;
+  category: string;
+  name: string;
+  base_price_cents: number;
+  duration_minutes: number;
+  is_active: boolean;
+  note?: string;
+}
