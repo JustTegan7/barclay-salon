@@ -1,39 +1,22 @@
 const bcrypt = require("bcrypt");
+const { addEmployeeSchema } = require("./schemas");
 
-/**
- * POST /api/admin/users
- * Admin / Owner only
- *
- * Body:
- * {
- *   email: string,
- *   tempPassword: string,
- *   role?: "HAIRDRESSER" | "OWNER"
- * }
- */
 async function createEmployee({ query }, req, res) {
+  const parsed = addEmployeeSchema.safeParse(req.body);
+  if (!parsed.success) {
+    return res.status(400).json({
+      ok: false,
+      error: parsed.error.issues[0].message,
+    });
+  }
+
+  const { email, tempPassword, role } = parsed.data;
+
   try {
-    const { email, tempPassword, role = "HAIRDRESSER" } = req.body || {};
-
-    if (!email || !tempPassword) {
-      return res
-        .status(400)
-        .json({ ok: false, error: "email and tempPassword required" });
-    }
-
-    const allowedRoles = ["HAIRDRESSER", "OWNER"];
-    if (!allowedRoles.includes(role)) {
-      return res.status(400).json({
-        ok: false,
-        error: "Invalid role",
-      });
-    }
-
     const passwordHash = await bcrypt.hash(tempPassword, 10);
 
     const result = await query(
-      `
-      INSERT INTO users (
+      `INSERT INTO users (
         email,
         password_hash,
         role,
@@ -47,15 +30,11 @@ async function createEmployee({ query }, req, res) {
         role = EXCLUDED.role,
         must_reset_password = true,
         is_active = true
-      RETURNING id, email, role, must_reset_password;
-      `,
+      RETURNING id, email, role, must_reset_password;`,
       [email, passwordHash, role],
     );
 
-    return res.status(201).json({
-      ok: true,
-      user: result.rows[0],
-    });
+    return res.status(201).json({ ok: true, user: result.rows[0] });
   } catch (err) {
     console.error("createEmployee error:", err);
     return res.status(500).json({ ok: false, error: "Server error" });

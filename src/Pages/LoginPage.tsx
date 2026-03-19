@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useAuth } from "../context/useAuth";
 import { useNavigate } from "react-router-dom";
+import { loginSchema } from "../lib/schemas";
 
 export default function LoginPage() {
   const { login } = useAuth();
@@ -12,10 +13,18 @@ export default function LoginPage() {
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const result = await login(email, password);
+    setError("");
 
-    if (!result.ok) {
-      setError(result.error ?? "Invalid credentials");
+    // Validate before hitting the API
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
+
+    const res = await login(email, password);
+    if (!res.ok) {
+      setError(res.error ?? "Invalid credentials");
       return;
     }
 

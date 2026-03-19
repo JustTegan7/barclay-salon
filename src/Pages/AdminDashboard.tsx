@@ -1,7 +1,10 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useAuth } from "../context/useAuth";
 import { apiGet, apiPost } from "../api/client";
 import { useNavigate } from "react-router-dom";
+import { ErrorBoundary } from "../Components/ErrorBoundary";
+import { addEmployeeSchema } from "../lib/schemas";
 
 interface Appointment {
   id: string;
@@ -35,8 +38,9 @@ interface TimeOffRequest {
 type Tab = "appointments" | "employees" | "timeoff";
 
 export default function AdminDashboard() {
-  const { user, token, logout } = useAuth();
+  const { user, token, logout, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   function handleLogout() {
     logout();
@@ -44,143 +48,119 @@ export default function AdminDashboard() {
   }
 
   const [tab, setTab] = useState<Tab>("appointments");
-  const [appointments, setAppointments] = useState<Appointment[]>([]);
-  const [employees, setEmployees] = useState<Employee[]>([]);
-  const [timeOffRequests, setTimeOffRequests] = useState<TimeOffRequest[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-
-  // New employee form
   const [newEmail, setNewEmail] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [newRole, setNewRole] = useState("HAIRDRESSER");
-  const [empSubmitting, setEmpSubmitting] = useState(false);
   const [empSuccess, setEmpSuccess] = useState("");
   const [empError, setEmpError] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  async function handleDeactivate(id: string) {
-    try {
-      await apiPost(
-        `/api/admin/users/${id}/deactivate`,
-        {},
+  // ── Queries ────────────────────────────────────────────
+  const {
+    data: appointments = [],
+    isLoading: apptLoading,
+    error: apptError,
+  } = useQuery({
+    queryKey: ["appointments", token],
+    queryFn: async () => {
+      const res = await apiGet<{ ok: boolean; appointments: Appointment[] }>(
+        "/api/admin/appointments",
         token ?? undefined,
       );
-      setEmployees((prev) =>
-        prev.map((e) => (e.id === id ? { ...e, is_active: false } : e)),
-      );
-    } catch (err: unknown) {
-      setEmpError(err instanceof Error ? err.message : "Failed to deactivate");
-    }
-  }
+      return res.appointments ?? [];
+    },
+    enabled: !!token,
+  });
 
-  async function handleReactivate(id: string) {
-    try {
-      await apiPost(
-        `/api/admin/users/${id}/reactivate`,
-        {},
-        token ?? undefined,
-      );
-      setEmployees((prev) =>
-        prev.map((e) => (e.id === id ? { ...e, is_active: true } : e)),
-      );
-    } catch (err: unknown) {
-      setEmpError(err instanceof Error ? err.message : "Failed to reactivate");
-    }
-  }
-
-  async function handleDelete(id: string) {
-    try {
-      await apiPost(`/api/admin/users/${id}/delete`, {}, token ?? undefined);
-      setEmployees((prev) => prev.filter((e) => e.id !== id));
-      setConfirmDeleteId(null);
-    } catch (err: unknown) {
-      setEmpError(err instanceof Error ? err.message : "Failed to delete");
-    }
-  }
-
-  useEffect(() => {
-    async function loadAll() {
-      setLoading(true);
-      setError("");
-      try {
-        const [apptRes, empRes, toRes] = await Promise.allSettled([
-          apiGet<{ ok: boolean; appointments: Appointment[] }>(
-            "/api/admin/appointments",
-            token ?? undefined,
-          ),
-          apiGet<{ ok: boolean; users: Employee[] }>(
-            "/api/admin/users",
-            token ?? undefined,
-          ),
-          apiGet<{ ok: boolean; requests: TimeOffRequest[] }>(
-            "/api/admin/time-off",
-            token ?? undefined,
-          ),
-        ]);
-
-        if (apptRes.status === "fulfilled")
-          setAppointments(apptRes.value.appointments ?? []);
-        if (empRes.status === "fulfilled")
-          setEmployees(empRes.value.users ?? []);
-        if (toRes.status === "fulfilled")
-          setTimeOffRequests(toRes.value.requests ?? []);
-      } catch {
-        setError("Failed to load data");
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadAll();
-  }, [token]);
-
-  async function handleAddEmployee(e: React.FormEvent) {
-    e.preventDefault();
-    setEmpSubmitting(true);
-    setEmpSuccess("");
-    setEmpError("");
-    try {
-      await apiPost(
-        "/api/admin/users",
-        { email: newEmail, tempPassword: newPassword, role: newRole },
-        token ?? undefined,
-      );
-      setEmpSuccess(`Employee ${newEmail} created!`);
-      setNewEmail("");
-      setNewPassword("");
-      setNewRole("HAIRDRESSER");
+  const { data: employees = [], error: empFetchError } = useQuery({
+    queryKey: ["employees", token],
+    queryFn: async () => {
       const res = await apiGet<{ ok: boolean; users: Employee[] }>(
         "/api/admin/users",
         token ?? undefined,
       );
-      setEmployees(res.users ?? []);
-    } catch (err: unknown) {
+      return res.users ?? [];
+    },
+    enabled: !!token,
+  });
+
+  const { data: timeOffRequests = [], error: timeOffError } = useQuery({
+    queryKey: ["timeoff", token],
+    queryFn: async () => {
+      const res = await apiGet<{ ok: boolean; requests: TimeOffRequest[] }>(
+        "/api/admin/time-off",
+        token ?? undefined,
+      );
+      return res.requests ?? [];
+    },
+    enabled: !!token,
+  });
+
+  // ── Mutations ──────────────────────────────────────────
+  const deactivateMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiPost(`/api/admin/users/${id}/deactivate`, {}, token ?? undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employees"] }),
+    onError: (err: unknown) =>
+      setEmpError(err instanceof Error ? err.message : "Failed to deactivate"),
+  });
+
+  const reactivateMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiPost(`/api/admin/users/${id}/reactivate`, {}, token ?? undefined),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["employees"] }),
+    onError: (err: unknown) =>
+      setEmpError(err instanceof Error ? err.message : "Failed to reactivate"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) =>
+      apiPost(`/api/admin/users/${id}/delete`, {}, token ?? undefined),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+      setConfirmDeleteId(null);
+    },
+    onError: (err: unknown) =>
+      setEmpError(err instanceof Error ? err.message : "Failed to delete"),
+  });
+
+  const addEmployeeMutation = useMutation({
+    mutationFn: () =>
+      apiPost(
+        "/api/admin/users",
+        { email: newEmail, tempPassword: newPassword, role: newRole },
+        token ?? undefined,
+      ),
+    onSuccess: () => {
+      setEmpSuccess(`Employee ${newEmail} created!`);
+      setNewEmail("");
+      setNewPassword("");
+      setNewRole("HAIRDRESSER");
+      queryClient.invalidateQueries({ queryKey: ["employees"] });
+    },
+    onError: (err: unknown) =>
       setEmpError(
         err instanceof Error ? err.message : "Failed to create employee",
-      );
-    } finally {
-      setEmpSubmitting(false);
-    }
-  }
+      ),
+  });
 
-  async function handleTimeOffAction(
-    id: string,
-    action: "approved" | "denied",
-  ) {
-    try {
-      await apiPost(
+  const timeOffMutation = useMutation({
+    mutationFn: ({
+      id,
+      action,
+    }: {
+      id: string;
+      action: "approved" | "denied";
+    }) =>
+      apiPost(
         `/api/admin/time-off/${id}`,
         { status: action },
         token ?? undefined,
-      );
-      setTimeOffRequests((prev) =>
-        prev.map((r) => (r.id === id ? { ...r, status: action } : r)),
-      );
-    } catch {
-      setError("Failed to update request");
-    }
-  }
+      ),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: ["timeoff"] }),
+  });
 
+  // ── Helpers ────────────────────────────────────────────
   function formatDate(iso: string) {
     return new Date(iso).toLocaleDateString("en-US", {
       weekday: "short",
@@ -214,9 +194,10 @@ export default function AdminDashboard() {
     (a) => new Date(a.datetime) >= new Date() && a.status !== "cancelled",
   );
 
+  const globalError = apptError || empFetchError || timeOffError;
+
   return (
     <div className="dashboard-page">
-      {/* Header */}
       <div className="dashboard-header">
         <div>
           <p className="dashboard-eyebrow">Staff Portal · {user?.role}</p>
@@ -228,29 +209,29 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {/* Stat Cards */}
-      <div className="stat-row">
-        <div className="stat-card">
-          <p className="stat-label">Upcoming Appointments</p>
-          <p className="stat-value">{upcoming.length}</p>
+      <ErrorBoundary section="Stats">
+        <div className="stat-row">
+          <div className="stat-card">
+            <p className="stat-label">Upcoming Appointments</p>
+            <p className="stat-value">{upcoming.length}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Total Appointments</p>
+            <p className="stat-value">{appointments.length}</p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Active Staff</p>
+            <p className="stat-value">
+              {employees.filter((e) => e.is_active).length}
+            </p>
+          </div>
+          <div className="stat-card">
+            <p className="stat-label">Pending Time Off</p>
+            <p className="stat-value">{pendingTimeOff.length}</p>
+          </div>
         </div>
-        <div className="stat-card">
-          <p className="stat-label">Total Appointments</p>
-          <p className="stat-value">{appointments.length}</p>
-        </div>
-        <div className="stat-card">
-          <p className="stat-label">Active Staff</p>
-          <p className="stat-value">
-            {employees.filter((e) => e.is_active).length}
-          </p>
-        </div>
-        <div className="stat-card">
-          <p className="stat-label">Pending Time Off</p>
-          <p className="stat-value">{pendingTimeOff.length}</p>
-        </div>
-      </div>
+      </ErrorBoundary>
 
-      {/* Tabs */}
       <div className="tab-row">
         <button
           className={`tab-btn ${tab === "appointments" ? "tab-active" : ""}`}
@@ -275,239 +256,293 @@ export default function AdminDashboard() {
         </button>
       </div>
 
-      {error && <p className="dashboard-error">{error}</p>}
-
-      {/* ── APPOINTMENTS TAB ── */}
-      {tab === "appointments" && (
-        <div className="dashboard-section">
-          {loading ? (
-            <p className="dashboard-empty">Loading…</p>
-          ) : appointments.length === 0 ? (
-            <p className="dashboard-empty">No appointments yet.</p>
-          ) : (
-            <div className="appt-list">
-              {appointments.map((a) => (
-                <div key={a.id} className="appt-card">
-                  <div className="appt-main">
-                    <p className="appt-service">{a.service_name}</p>
-                    <p className="appt-datetime">
-                      {formatDate(a.datetime)} &middot; {formatTime(a.datetime)}
-                    </p>
-                    {a.customer_name && (
-                      <p className="appt-client">{a.customer_name}</p>
-                    )}
-                    {a.customer_phone && (
-                      <p className="appt-client-sub">
-                        <a href={`tel:${a.customer_phone}`}>
-                          {a.customer_phone}
-                        </a>
-                      </p>
-                    )}
-                    {a.customer_email && (
-                      <p className="appt-client-sub">
-                        <a href={`mailto:${a.customer_email}`}>
-                          {a.customer_email}
-                        </a>
-                      </p>
-                    )}
-                  </div>
-                  <span className={`badge ${statusBadge(a.status)}`}>
-                    {a.status}
-                  </span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+      {globalError && (
+        <p className="dashboard-error">
+          {globalError instanceof Error
+            ? globalError.message
+            : "Failed to load data"}
+        </p>
       )}
 
-      {/* ── EMPLOYEES TAB ── */}
-      {tab === "employees" && (
-        <div className="dashboard-section">
-          <p className="section-label">Add Employee</p>
-          <form className="timeoff-form" onSubmit={handleAddEmployee}>
-            <div className="form-row">
-              <div className="form-group">
-                <label className="form-label" htmlFor="emp-email">
-                  Email
-                </label>
-                <input
-                  id="emp-email"
-                  className="form-input"
-                  type="email"
-                  placeholder="stylist@barclays.com"
-                  value={newEmail}
-                  onChange={(e) => setNewEmail(e.target.value)}
-                  required
-                />
-              </div>
-              <div className="form-group">
-                <label className="form-label" htmlFor="emp-role">
-                  Role
-                </label>
-                <select
-                  id="emp-role"
-                  className="form-input"
-                  value={newRole}
-                  onChange={(e) => setNewRole(e.target.value)}
-                >
-                  <option value="HAIRDRESSER">Hairdresser</option>
-                  <option value="OWNER">Owner</option>
-                </select>
-              </div>
-            </div>
-            <div className="form-group">
-              <label className="form-label" htmlFor="emp-pass">
-                Temporary Password
-              </label>
-              <input
-                id="emp-pass"
-                className="form-input"
-                type="text"
-                placeholder="They'll be prompted to reset this"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-                required
-              />
-            </div>
-            <button
-              className="btn-primary"
-              type="submit"
-              disabled={empSubmitting}
-            >
-              {empSubmitting ? "Creating…" : "Create Employee"}
-            </button>
-            {empSuccess && <p className="form-success">{empSuccess}</p>}
-            {empError && <p className="dashboard-error">{empError}</p>}
-          </form>
-
-          {employees.length > 0 && (
-            <>
-              <p className="section-label" style={{ marginTop: "2rem" }}>
-                Staff
-              </p>
+      {tab === "appointments" && (
+        <ErrorBoundary section="Appointments">
+          <div className="dashboard-section">
+            {apptLoading ? (
+              <p className="dashboard-empty">Loading…</p>
+            ) : appointments.length === 0 ? (
+              <p className="dashboard-empty">No appointments yet.</p>
+            ) : (
               <div className="appt-list">
-                {employees.map((emp) => (
-                  <div key={emp.id} className="appt-card">
+                {appointments.map((a) => (
+                  <div key={a.id} className="appt-card">
                     <div className="appt-main">
-                      <p className="appt-service">{emp.email}</p>
-                      <p className="appt-datetime">{emp.role}</p>
+                      <p className="appt-service">{a.service_name}</p>
+                      <p className="appt-datetime">
+                        {formatDate(a.datetime)} &middot;{" "}
+                        {formatTime(a.datetime)}
+                      </p>
+                      {a.customer_name && (
+                        <p className="appt-client">{a.customer_name}</p>
+                      )}
+                      {a.customer_phone && (
+                        <p className="appt-client-sub">
+                          <a href={`tel:${a.customer_phone}`}>
+                            {a.customer_phone}
+                          </a>
+                        </p>
+                      )}
+                      {a.customer_email && (
+                        <p className="appt-client-sub">
+                          <a href={`mailto:${a.customer_email}`}>
+                            {a.customer_email}
+                          </a>
+                        </p>
+                      )}
+                    </div>
+                    <span className={`badge ${statusBadge(a.status)}`}>
+                      {a.status}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {tab === "employees" && (
+        <ErrorBoundary section="Employees">
+          <div className="dashboard-section">
+            {isAdmin && (
+              <>
+                <p className="section-label">Add Employee</p>
+                <form
+                  className="timeoff-form"
+                  onSubmit={(e) => {
+                    e.preventDefault();
+                    setEmpSuccess("");
+                    setEmpError("");
+
+                    const result = addEmployeeSchema.safeParse({
+                      email: newEmail,
+                      tempPassword: newPassword,
+                      role: newRole,
+                    });
+
+                    if (!result.success) {
+                      setEmpError(result.error.issues[0].message);
+                      return;
+                    }
+
+                    addEmployeeMutation.mutate();
+                  }}
+                >
+                  <div className="form-row">
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="emp-email">
+                        Email
+                      </label>
+                      <input
+                        id="emp-email"
+                        className="form-input"
+                        type="email"
+                        placeholder="stylist@barclays.com"
+                        value={newEmail}
+                        onChange={(e) => setNewEmail(e.target.value)}
+                        required
+                      />
+                    </div>
+                    <div className="form-group">
+                      <label className="form-label" htmlFor="emp-role">
+                        Role
+                      </label>
+                      <select
+                        id="emp-role"
+                        className="form-input"
+                        value={newRole}
+                        onChange={(e) => setNewRole(e.target.value)}
+                      >
+                        <option value="HAIRDRESSER">Hairdresser</option>
+                        <option value="OWNER">Owner</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="form-group">
+                    <label className="form-label" htmlFor="emp-pass">
+                      Temporary Password
+                    </label>
+                    <input
+                      id="emp-pass"
+                      className="form-input"
+                      type="text"
+                      placeholder="They'll be prompted to reset this"
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      required
+                    />
+                  </div>
+                  <button
+                    className="btn-primary"
+                    type="submit"
+                    disabled={addEmployeeMutation.isPending}
+                  >
+                    {addEmployeeMutation.isPending
+                      ? "Creating…"
+                      : "Create Employee"}
+                  </button>
+                  {empSuccess && <p className="form-success">{empSuccess}</p>}
+                  {empError && <p className="dashboard-error">{empError}</p>}
+                </form>
+              </>
+            )}
+
+            {employees.length > 0 && (
+              <>
+                <p className="section-label" style={{ marginTop: "2rem" }}>
+                  Staff
+                </p>
+                <div className="appt-list">
+                  {employees.map((emp) => (
+                    <div key={emp.id} className="appt-card">
+                      <div className="appt-main">
+                        <p className="appt-service">{emp.email}</p>
+                        <p className="appt-datetime">{emp.role}</p>
+                      </div>
+                      <div className="appt-actions">
+                        {confirmDeleteId === emp.id ? (
+                          <>
+                            <span
+                              style={{
+                                fontSize: "12px",
+                                color: "#c62828",
+                                marginRight: "6px",
+                              }}
+                            >
+                              Are you sure?
+                            </span>
+                            <button
+                              className="btn-deny"
+                              onClick={() => deleteMutation.mutate(emp.id)}
+                            >
+                              Yes, Delete
+                            </button>
+                            <button
+                              className="btn-approve"
+                              onClick={() => setConfirmDeleteId(null)}
+                            >
+                              Cancel
+                            </button>
+                          </>
+                        ) : (
+                          <>
+                            <span
+                              className={`badge ${emp.is_active ? "badge-confirmed" : "badge-cancelled"}`}
+                            >
+                              {emp.is_active ? "active" : "inactive"}
+                            </span>
+                            {isAdmin && (
+                              <>
+                                {emp.is_active ? (
+                                  <button
+                                    className="btn-deny"
+                                    onClick={() =>
+                                      deactivateMutation.mutate(emp.id)
+                                    }
+                                  >
+                                    Deactivate
+                                  </button>
+                                ) : (
+                                  <button
+                                    className="btn-approve"
+                                    onClick={() =>
+                                      reactivateMutation.mutate(emp.id)
+                                    }
+                                  >
+                                    Reactivate
+                                  </button>
+                                )}
+                                <button
+                                  className="btn-deny"
+                                  style={{
+                                    background: "#fce4ec",
+                                    borderColor: "#e57373",
+                                  }}
+                                  onClick={() => setConfirmDeleteId(emp.id)}
+                                >
+                                  Delete
+                                </button>
+                              </>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
+        </ErrorBoundary>
+      )}
+
+      {tab === "timeoff" && (
+        <ErrorBoundary section="Time Off">
+          <div className="dashboard-section">
+            {timeOffRequests.length === 0 ? (
+              <p className="dashboard-empty">No time-off requests.</p>
+            ) : (
+              <div className="appt-list">
+                {timeOffRequests.map((r) => (
+                  <div key={r.id} className="appt-card">
+                    <div className="appt-main">
+                      <p className="appt-service">
+                        {r.hairdresser_email ?? "Staff member"}
+                      </p>
+                      <p className="appt-datetime">
+                        {formatDate(r.start_date)}
+                        {r.start_date !== r.end_date &&
+                          ` — ${formatDate(r.end_date)}`}
+                      </p>
+                      {r.note && <p className="appt-client">{r.note}</p>}
                     </div>
                     <div className="appt-actions">
-                      {confirmDeleteId === emp.id ? (
+                      {r.status === "pending" ? (
                         <>
-                          <span
-                            style={{
-                              fontSize: "12px",
-                              color: "#c62828",
-                              marginRight: "6px",
-                            }}
-                          >
-                            Are you sure?
-                          </span>
-                          <button
-                            className="btn-deny"
-                            onClick={() => handleDelete(emp.id)}
-                          >
-                            Yes, Delete
-                          </button>
                           <button
                             className="btn-approve"
-                            onClick={() => setConfirmDeleteId(null)}
+                            onClick={() =>
+                              timeOffMutation.mutate({
+                                id: r.id,
+                                action: "approved",
+                              })
+                            }
                           >
-                            Cancel
+                            Approve
+                          </button>
+                          <button
+                            className="btn-deny"
+                            onClick={() =>
+                              timeOffMutation.mutate({
+                                id: r.id,
+                                action: "denied",
+                              })
+                            }
+                          >
+                            Deny
                           </button>
                         </>
                       ) : (
-                        <>
-                          <span
-                            className={`badge ${emp.is_active ? "badge-confirmed" : "badge-cancelled"}`}
-                          >
-                            {emp.is_active ? "active" : "inactive"}
-                          </span>
-                          {emp.is_active ? (
-                            <button
-                              className="btn-deny"
-                              onClick={() => handleDeactivate(emp.id)}
-                            >
-                              Deactivate
-                            </button>
-                          ) : (
-                            <button
-                              className="btn-approve"
-                              onClick={() => handleReactivate(emp.id)}
-                            >
-                              Reactivate
-                            </button>
-                          )}
-                          <button
-                            className="btn-deny"
-                            style={{
-                              background: "#fce4ec",
-                              borderColor: "#e57373",
-                            }}
-                            onClick={() => setConfirmDeleteId(emp.id)}
-                          >
-                            Delete
-                          </button>
-                        </>
+                        <span className={`badge ${statusBadge(r.status)}`}>
+                          {r.status}
+                        </span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* ── TIME OFF TAB ── */}
-      {tab === "timeoff" && (
-        <div className="dashboard-section">
-          {timeOffRequests.length === 0 ? (
-            <p className="dashboard-empty">No time-off requests.</p>
-          ) : (
-            <div className="appt-list">
-              {timeOffRequests.map((r) => (
-                <div key={r.id} className="appt-card">
-                  <div className="appt-main">
-                    <p className="appt-service">
-                      {r.hairdresser_email ?? "Staff member"}
-                    </p>
-                    <p className="appt-datetime">
-                      {formatDate(r.start_date)}
-                      {r.start_date !== r.end_date &&
-                        ` — ${formatDate(r.end_date)}`}
-                    </p>
-                    {r.note && <p className="appt-client">{r.note}</p>}
-                  </div>
-                  <div className="appt-actions">
-                    {r.status === "pending" ? (
-                      <>
-                        <button
-                          className="btn-approve"
-                          onClick={() => handleTimeOffAction(r.id, "approved")}
-                        >
-                          Approve
-                        </button>
-                        <button
-                          className="btn-deny"
-                          onClick={() => handleTimeOffAction(r.id, "denied")}
-                        >
-                          Deny
-                        </button>
-                      </>
-                    ) : (
-                      <span className={`badge ${statusBadge(r.status)}`}>
-                        {r.status}
-                      </span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+            )}
+          </div>
+        </ErrorBoundary>
       )}
     </div>
   );

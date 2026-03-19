@@ -10,6 +10,10 @@ const { authRequired, requireRole } = require("./api/authMiddleware");
 const { createEmployee } = require("./api/userController");
 const { login } = require("./api/authController");
 
+const { loginLimiter } = require("./api/rateLimiter");
+
+const { writeAudit } = require("./api/audit");
+
 const app = express();
 
 const PORT = process.env.PORT || 4000;
@@ -55,11 +59,32 @@ function findService(serviceId) {
 
 app.get(["/services", "/api/services"], (_req, res) => res.json(services));
 
+// ── Public: list active hairdressers for booking ──
+app.get("/api/staff", async (_req, res) => {
+  try {
+    if (pool) {
+      const result = await query(
+        `SELECT id, email, display_name
+         FROM users
+         WHERE is_active = true AND role = 'HAIRDRESSER'
+         ORDER BY display_name ASC, email ASC;`,
+      );
+      return res.json({ ok: true, staff: result.rows });
+    }
+    return res.json({ ok: true, staff: [] });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
 // ══════════════════════════════
 // AUTH
 // ══════════════════════════════
 
-app.post("/api/auth/login", (req, res) => login({ query }, req, res));
+app.post("/api/auth/login", loginLimiter, (req, res) =>
+  login({ query }, req, res),
+);
 
 // ══════════════════════════════
 // ADMIN — USERS
@@ -83,14 +108,14 @@ app.get(
       const result = await query(
         `SELECT id, email, role, is_active, created_at
          FROM users
-         ORDER BY created_at DESC;`
+         ORDER BY created_at DESC;`,
       );
       return res.json({ ok: true, users: result.rows });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // ══════════════════════════════
@@ -113,7 +138,7 @@ app.get(
                   c.phone AS customer_phone
            FROM guest_appointments ga
            LEFT JOIN customers c ON c.id = ga.customer_id
-           ORDER BY ga.datetime ASC;`
+           ORDER BY ga.datetime ASC;`,
         );
         return res.json({ ok: true, appointments: result.rows });
       }
@@ -122,7 +147,7 @@ app.get(
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // Latest appointment (debug)
@@ -131,7 +156,7 @@ app.get("/api/admin/appointments/latest", async (_req, res) => {
     if (pool) {
       await initDb();
       const result = await query(
-        `SELECT * FROM guest_appointments ORDER BY created_at DESC LIMIT 1;`
+        `SELECT * FROM guest_appointments ORDER BY created_at DESC LIMIT 1;`,
       );
       return res.json({ ok: true, appointment: result.rows[0] || null });
     }
@@ -160,14 +185,14 @@ app.get(
         `SELECT t.*, u.email AS hairdresser_email
          FROM time_off_requests t
          JOIN users u ON u.id = t.user_id
-         ORDER BY t.created_at DESC;`
+         ORDER BY t.created_at DESC;`,
       );
       return res.json({ ok: true, requests: result.rows });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // Approve or deny a time-off request
@@ -179,11 +204,13 @@ app.post(
     try {
       const { status } = req.body || {};
       if (!["approved", "denied"].includes(status)) {
-        return res.status(400).json({ ok: false, error: "status must be approved or denied" });
+        return res
+          .status(400)
+          .json({ ok: false, error: "status must be approved or denied" });
       }
       const result = await query(
         `UPDATE time_off_requests SET status = $1 WHERE id = $2 RETURNING id, status;`,
-        [status, req.params.id]
+        [status, req.params.id],
       );
       if (result.rows.length === 0) {
         return res.status(404).json({ ok: false, error: "Request not found" });
@@ -193,7 +220,7 @@ app.post(
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // ══════════════════════════════
@@ -215,14 +242,14 @@ app.get(
          LEFT JOIN customers c ON c.id = ga.customer_id
          WHERE ga.assigned_staff_id = $1
          ORDER BY ga.datetime ASC;`,
-        [req.user.id]
+        [req.user.id],
       );
       return res.json({ ok: true, appointments: result.rows });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // ══════════════════════════════
@@ -238,20 +265,22 @@ app.post(
     try {
       const { start_date, end_date, note } = req.body || {};
       if (!start_date || !end_date) {
-        return res.status(400).json({ ok: false, error: "start_date and end_date required" });
+        return res
+          .status(400)
+          .json({ ok: false, error: "start_date and end_date required" });
       }
       const result = await query(
         `INSERT INTO time_off_requests (user_id, start_date, end_date, note)
          VALUES ($1, $2, $3, $4)
          RETURNING id, start_date, end_date, note, status, created_at;`,
-        [req.user.id, start_date, end_date, note || null]
+        [req.user.id, start_date, end_date, note || null],
       );
       return res.status(201).json({ ok: true, request: result.rows[0] });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // View own time-off requests
@@ -265,14 +294,14 @@ app.get(
         `SELECT * FROM time_off_requests
          WHERE user_id = $1
          ORDER BY created_at DESC;`,
-        [req.user.id]
+        [req.user.id],
       );
       return res.json({ ok: true, requests: result.rows });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // ══════════════════════════════
@@ -283,16 +312,29 @@ const memoryAppointments = [];
 
 app.post("/api/appointments", async (req, res) => {
   try {
-    const { name, phone, email, serviceId, datetime } = req.body || {};
+    const { name, phone, email, serviceId, datetime, hairdresserId } =
+      req.body || {};
     if (!name || !serviceId || !datetime) {
-      return res.status(400).json({ ok: false, error: "name, serviceId, datetime required" });
+      return res
+        .status(400)
+        .json({ ok: false, error: "name, serviceId, datetime required" });
     }
     const svc = findService(serviceId);
-    if (!svc) return res.status(400).json({ ok: false, error: "Unknown serviceId" });
+    if (!svc)
+      return res.status(400).json({ ok: false, error: "Unknown serviceId" });
     if (pool) await initDb();
     const result = await createGuestAppointment({
-      query, pool, memoryAppointments,
-      payload: { name, phone, email, serviceId, serviceName: svc.name, datetime },
+      query,
+      pool,
+      memoryAppointments,
+      payload: {
+        name,
+        phone,
+        email,
+        serviceId,
+        serviceName: svc.name,
+        datetime,
+      },
     });
     return res.status(result.status).json(result.body);
   } catch (err) {
@@ -307,14 +349,26 @@ app.post("/api/bookings", async (req, res) => {
     const { name, phone, service, datetime, email } = req.body || {};
     const serviceId = service;
     if (!name || !serviceId || !datetime) {
-      return res.status(400).json({ ok: false, error: "name, service, datetime required" });
+      return res
+        .status(400)
+        .json({ ok: false, error: "name, service, datetime required" });
     }
     const svc = findService(serviceId);
-    if (!svc) return res.status(400).json({ ok: false, error: "Unknown service" });
+    if (!svc)
+      return res.status(400).json({ ok: false, error: "Unknown service" });
     if (pool) await initDb();
     const result = await createGuestAppointment({
-      query, pool, memoryAppointments,
-      payload: { name, phone, email, serviceId, serviceName: svc.name, datetime },
+      query,
+      pool,
+      memoryAppointments,
+      payload: {
+        name,
+        phone,
+        email,
+        serviceId,
+        serviceName: svc.name,
+        datetime,
+      },
     });
     return res.status(result.status).json(result.body);
   } catch (err) {
@@ -344,111 +398,108 @@ if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
   });
 }
 
-module.exports = app;
-
-
 // ══════════════════════════════
 // EMPLOYEE — PROFILE
 // ══════════════════════════════
 
 // Get own profile
-app.get(
-  "/api/employee/profile",
-  authRequired,
-  async (req, res) => {
-    try {
-      const result = await query(
-        `SELECT email, display_name, phone, address FROM users WHERE id = $1;`,
-        [req.user.id]
-      );
-      return res.json({ ok: true, profile: result.rows[0] ?? null });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ ok: false, error: "Server error" });
-    }
+app.get("/api/employee/profile", authRequired, async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT email, display_name, phone, address FROM users WHERE id = $1;`,
+      [req.user.id],
+    );
+    return res.json({ ok: true, profile: result.rows[0] ?? null });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
   }
-);
+});
 
 // Update own profile
-app.post(
-  "/api/employee/profile",
-  authRequired,
-  async (req, res) => {
-    try {
-      const { display_name, phone, address } = req.body || {};
-      await query(
-        `UPDATE users SET display_name = $1, phone = $2, address = $3 WHERE id = $4;`,
-        [display_name || null, phone || null, address || null, req.user.id]
-      );
-      return res.json({ ok: true });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ ok: false, error: "Server error" });
-    }
+app.post("/api/employee/profile", authRequired, async (req, res) => {
+  try {
+    const { display_name, phone, address } = req.body || {};
+    await query(
+      `UPDATE users SET display_name = $1, phone = $2, address = $3 WHERE id = $4;`,
+      [display_name || null, phone || null, address || null, req.user.id],
+    );
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
   }
-);
+});
 
 // Change own password
-app.post(
-  "/api/employee/change-password",
-  authRequired,
-  async (req, res) => {
-    try {
-      const { currentPassword, newPassword } = req.body || {};
-      if (!currentPassword || !newPassword) {
-        return res.status(400).json({ ok: false, error: "Both passwords required" });
-      }
-      if (newPassword.length < 8) {
-        return res.status(400).json({ ok: false, error: "Password must be at least 8 characters" });
-      }
-
-      const result = await query(
-        `SELECT password_hash FROM users WHERE id = $1;`,
-        [req.user.id]
-      );
-
-      const user = result.rows[0];
-      const bcrypt = require("bcrypt");
-      const valid = await bcrypt.compare(currentPassword, user.password_hash);
-      if (!valid) {
-        return res.status(401).json({ ok: false, error: "Current password is incorrect" });
-      }
-
-      const newHash = await bcrypt.hash(newPassword, 10);
-      await query(
-        `UPDATE users SET password_hash = $1, must_reset_password = false WHERE id = $2;`,
-        [newHash, req.user.id]
-      );
-
-      return res.json({ ok: true });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ ok: false, error: "Server error" });
+app.post("/api/employee/change-password", authRequired, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body || {};
+    if (!currentPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ ok: false, error: "Both passwords required" });
     }
+    if (newPassword.length < 8) {
+      return res
+        .status(400)
+        .json({ ok: false, error: "Password must be at least 8 characters" });
+    }
+
+    const result = await query(
+      `SELECT password_hash FROM users WHERE id = $1;`,
+      [req.user.id],
+    );
+
+    const user = result.rows[0];
+    const bcrypt = require("bcrypt");
+    const valid = await bcrypt.compare(currentPassword, user.password_hash);
+    if (!valid) {
+      return res
+        .status(401)
+        .json({ ok: false, error: "Current password is incorrect" });
+    }
+
+    const newHash = await bcrypt.hash(newPassword, 10);
+    await query(
+      `UPDATE users SET password_hash = $1, must_reset_password = false WHERE id = $2;`,
+      [newHash, req.user.id],
+    );
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
   }
-);
+});
 
 // ══════════════════════════════
 // ADMIN — EMPLOYEE MANAGEMENT
 // ══════════════════════════════
 
-// Deactivate employee (soft delete — keeps all data)
+// Deactivate employee
 app.post(
   "/api/admin/users/:id/deactivate",
   authRequired,
   requireRole(["OWNER", "ADMIN"]),
   async (req, res) => {
     try {
-      await query(
-        `UPDATE users SET is_active = false WHERE id = $1;`,
-        [req.params.id]
-      );
+      await query(`UPDATE users SET is_active = false WHERE id = $1;`, [
+        req.params.id,
+      ]);
+      await writeAudit(query, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userRole: req.user.role,
+        action: "DEACTIVATE_EMPLOYEE",
+        targetId: req.params.id,
+      });
       return res.json({ ok: true });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // Reactivate employee
@@ -458,16 +509,22 @@ app.post(
   requireRole(["OWNER", "ADMIN"]),
   async (req, res) => {
     try {
-      await query(
-        `UPDATE users SET is_active = true WHERE id = $1;`,
-        [req.params.id]
-      );
+      await query(`UPDATE users SET is_active = true WHERE id = $1;`, [
+        req.params.id,
+      ]);
+      await writeAudit(query, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userRole: req.user.role,
+        action: "REACTIVATE_EMPLOYEE",
+        targetId: req.params.id,
+      });
       return res.json({ ok: true });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
 
 // Permanently delete employee
@@ -477,15 +534,60 @@ app.post(
   requireRole(["OWNER", "ADMIN"]),
   async (req, res) => {
     try {
-      // Prevent deleting yourself
       if (String(req.params.id) === String(req.user.id)) {
-        return res.status(400).json({ ok: false, error: "You cannot delete your own account" });
+        return res
+          .status(400)
+          .json({ ok: false, error: "You cannot delete your own account" });
       }
+      await writeAudit(query, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userRole: req.user.role,
+        action: "DELETE_EMPLOYEE",
+        targetId: req.params.id,
+      });
       await query(`DELETE FROM users WHERE id = $1;`, [req.params.id]);
       return res.json({ ok: true });
     } catch (err) {
       console.error(err);
       return res.status(500).json({ ok: false, error: "Server error" });
     }
-  }
+  },
 );
+
+// Approve or deny time-off
+app.post(
+  "/api/admin/time-off/:id",
+  authRequired,
+  requireRole(["OWNER", "ADMIN"]),
+  async (req, res) => {
+    try {
+      const { status } = req.body || {};
+      if (!["approved", "denied"].includes(status)) {
+        return res
+          .status(400)
+          .json({ ok: false, error: "status must be approved or denied" });
+      }
+      const result = await query(
+        `UPDATE time_off_requests SET status = $1 WHERE id = $2 RETURNING id, status;`,
+        [status, req.params.id],
+      );
+      if (result.rows.length === 0) {
+        return res.status(404).json({ ok: false, error: "Request not found" });
+      }
+      await writeAudit(query, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userRole: req.user.role,
+        action: `TIMEOFF_${status.toUpperCase()}`,
+        targetId: req.params.id,
+      });
+      return res.json({ ok: true, request: result.rows[0] });
+    } catch (err) {
+      console.error(err);
+      return res.status(500).json({ ok: false, error: "Server error" });
+    }
+  },
+);
+
+module.exports = app;
