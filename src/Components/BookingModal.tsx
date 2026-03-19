@@ -71,7 +71,6 @@ export default function BookingModal({ onClose }: BookingModalProps) {
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState(false);
-  const [confirmationId, setConfirmationId] = useState("");
 
   const [selectedStylist, setSelectedStylist] = useState<Stylist | null>(null);
   const [selectedService, setSelectedService] = useState<Service | null>(null);
@@ -234,7 +233,6 @@ export default function BookingModal({ onClose }: BookingModalProps) {
       });
 
       if (!res.ok) throw new Error(res.error || "Booking failed");
-      setConfirmationId(res.appointment?.id ?? "");
       setSuccess(true);
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : "Booking failed");
