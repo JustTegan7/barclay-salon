@@ -219,7 +219,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0;
+  gap: 8px;
   padding: 1rem 1.5rem 0;
   border-bottom: 1px solid #ebebeb;
 }
@@ -230,7 +230,7 @@
   align-items: center;
   gap: 4px;
   flex: 1;
-  padding-bottom: 0.75rem;
+  padding: 0 8px 0.75rem;
   border-bottom: 2px solid transparent;
   opacity: 0.4;
   transition: all 0.15s;
