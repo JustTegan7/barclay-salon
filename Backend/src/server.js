@@ -78,6 +78,29 @@ app.get("/api/staff", async (_req, res) => {
   }
 });
 
+// ── Public: booked time slots for a given date ──
+app.get("/api/appointments/booked", async (req, res) => {
+  try {
+    const { date } = req.query;
+    if (!date)
+      return res.status(400).json({ ok: false, error: "date required" });
+
+    const result = await query(
+      `SELECT datetime FROM guest_appointments
+       WHERE datetime >= ($1::date - interval '1 day')
+         AND datetime < ($1::date + interval '2 days')
+         AND LOWER(status) <> 'cancelled'
+       ORDER BY datetime ASC;`,
+      [date],
+    );
+
+    return res.json({ ok: true, booked: result.rows.map((r) => r.datetime) });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
+
 // ══════════════════════════════
 // AUTH
 // ══════════════════════════════
@@ -215,6 +238,13 @@ app.post(
       if (result.rows.length === 0) {
         return res.status(404).json({ ok: false, error: "Request not found" });
       }
+      await writeAudit(query, {
+        userId: req.user.id,
+        userEmail: req.user.email,
+        userRole: req.user.role,
+        action: `TIMEOFF_${status.toUpperCase()}`,
+        targetId: req.params.id,
+      });
       return res.json({ ok: true, request: result.rows[0] });
     } catch (err) {
       console.error(err);
@@ -378,27 +408,6 @@ app.post("/api/bookings", async (req, res) => {
 });
 
 // ══════════════════════════════
-// START SERVER
-// ══════════════════════════════
-
-// Initialize DB tables on startup
-if (pool) {
-  initDb()
-    .then(() => console.log("DB ready ✅"))
-    .catch((e) => console.error("DB init failed:", e));
-}
-
-// Local dev: start the server normally
-// Vercel: export the app as a serverless function
-if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
-  app.listen(PORT, () => {
-    console.log(`API running on http://localhost:${PORT}`);
-    console.log(`CORS allowed origin: ${CLIENT_ORIGIN}`);
-    console.log(`Try: http://localhost:${PORT}/health`);
-  });
-}
-
-// ══════════════════════════════
 // EMPLOYEE — PROFILE
 // ══════════════════════════════
 
@@ -555,59 +564,22 @@ app.post(
   },
 );
 
-// Approve or deny time-off
-app.post(
-  "/api/admin/time-off/:id",
-  authRequired,
-  requireRole(["OWNER", "ADMIN"]),
-  async (req, res) => {
-    try {
-      const { status } = req.body || {};
-      if (!["approved", "denied"].includes(status)) {
-        return res
-          .status(400)
-          .json({ ok: false, error: "status must be approved or denied" });
-      }
-      const result = await query(
-        `UPDATE time_off_requests SET status = $1 WHERE id = $2 RETURNING id, status;`,
-        [status, req.params.id],
-      );
-      if (result.rows.length === 0) {
-        return res.status(404).json({ ok: false, error: "Request not found" });
-      }
-      await writeAudit(query, {
-        userId: req.user.id,
-        userEmail: req.user.email,
-        userRole: req.user.role,
-        action: `TIMEOFF_${status.toUpperCase()}`,
-        targetId: req.params.id,
-      });
-      return res.json({ ok: true, request: result.rows[0] });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ ok: false, error: "Server error" });
-    }
-  },
-);
-// Booked slots for a given date
-app.get("/api/appointments/booked", async (req, res) => {
-  try {
-    const { date } = req.query; // e.g. 2026-03-21
-    if (!date)
-      return res.status(400).json({ ok: false, error: "date required" });
+// ══════════════════════════════
+// START SERVER
+// ══════════════════════════════
 
-    const result = await query(
-      `SELECT datetime FROM guest_appointments
-       WHERE datetime::date = $1::date
-       AND LOWER(status) <> 'cancelled'
-       ORDER BY datetime ASC;`,
-      [date],
-    );
+if (pool) {
+  initDb()
+    .then(() => console.log("DB ready ✅"))
+    .catch((e) => console.error("DB init failed:", e));
+}
 
-    return res.json({ ok: true, booked: result.rows.map((r) => r.datetime) });
-  } catch (err) {
-    console.error(err);
-    return res.status(500).json({ ok: false, error: "Server error" });
-  }
-});
+if (process.env.NODE_ENV !== "production" || process.env.VERCEL !== "1") {
+  app.listen(PORT, () => {
+    console.log(`API running on http://localhost:${PORT}`);
+    console.log(`CORS allowed origin: ${CLIENT_ORIGIN}`);
+    console.log(`Try: http://localhost:${PORT}/health`);
+  });
+}
+
 module.exports = app;
