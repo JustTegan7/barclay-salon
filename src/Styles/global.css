@@ -48,7 +48,7 @@ html {
 
 body {
   font-family: var(--sans);
-  font-size: 17px; /* ↑ base up from browser default 16px */
+  font-size: 17px;
   background: var(--bg);
   color: var(--text);
   line-height: 1.7;
@@ -91,7 +91,7 @@ button {
 
 .section-heading {
   font-family: var(--serif);
-  font-size: 2.75rem; /* ↑ was 2.25 */
+  font-size: 2.75rem;
   font-weight: 400;
   letter-spacing: 0.01em;
   margin-bottom: 1.25rem;
@@ -100,7 +100,7 @@ button {
 }
 
 .section-body {
-  font-size: 17px; /* ↑ was 15px */
+  font-size: 17px;
   line-height: 1.8;
   color: var(--muted);
   max-width: 64ch;
@@ -109,7 +109,7 @@ button {
 
 .section-muted {
   color: var(--muted);
-  font-size: 15px; /* ↑ was 0.9rem */
+  font-size: 15px;
 }
 
 /* ==========================================================
@@ -119,7 +119,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 14px 34px; /* ↑ taller */
+  padding: 14px 34px;
   background: var(--text);
   color: #fff;
   border: none;
@@ -140,7 +140,7 @@ button {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  padding: 13px 30px; /* ↑ taller */
+  padding: 13px 30px;
   background: transparent;
   color: var(--text);
   border: 1px solid var(--border-dark);
@@ -208,7 +208,7 @@ button {
   justify-content: space-between;
   align-items: center;
   padding: 0 2.5rem;
-  height: 76px; /* ↑ was 72 */
+  height: 76px;
   background: rgba(255, 255, 255, 0.97);
   border-bottom: 1px solid var(--border);
   backdrop-filter: blur(8px);
@@ -234,7 +234,7 @@ button {
 
 .navbar-brand-text {
   font-family: var(--serif);
-  font-size: 24px; /* ↑ was 21 */
+  font-size: 24px;
   font-weight: 400;
   color: var(--text);
   letter-spacing: 0.02em;
@@ -318,7 +318,7 @@ button {
   width: min(1140px, 92vw);
   margin: 0 auto;
   display: grid;
-  grid-template-columns: 1fr 400px; /* ↑ wider photo column */
+  grid-template-columns: 1fr 400px;
   gap: 4.5rem;
   align-items: start;
 }
@@ -333,7 +333,7 @@ button {
 
 .hero-title {
   font-family: var(--serif);
-  font-size: clamp(3rem, 5vw, 4.25rem); /* ↑ bigger */
+  font-size: clamp(3rem, 5vw, 4.25rem);
   font-weight: 400;
   line-height: 1.04;
   color: var(--text);
@@ -346,7 +346,7 @@ button {
 }
 
 .hero-tagline {
-  font-size: 17px; /* ↑ was 15.5 */
+  font-size: 17px;
   line-height: 1.8;
   color: var(--muted);
   max-width: 44ch;
@@ -391,7 +391,7 @@ button {
 .hero-photo-card {
   border-radius: var(--radius-lg);
   overflow: hidden;
-  height: 560px; /* ↑ taller */
+  height: 560px;
   position: relative;
 }
 .hero-photo-card img {
@@ -414,7 +414,6 @@ button {
   color: var(--text);
 }
 
-/* old card style — kept for any pages still using it */
 .hero-card {
   background: var(--surface);
   border: 1px solid var(--border);
@@ -468,7 +467,7 @@ button {
 }
 .placeholder-card {
   background: var(--bg);
-  padding: 1.625rem 1.875rem; /* ↑ more padding */
+  padding: 1.625rem 1.875rem;
 }
 .placeholder-card div:first-child {
   font-size: 15px;
@@ -510,7 +509,7 @@ button {
 
 .services-block-title {
   font-family: var(--serif);
-  font-size: 2.25rem; /* ↑ was 2rem */
+  font-size: 2.25rem;
   font-weight: 400;
   color: var(--text);
   margin-bottom: 6px;
@@ -533,7 +532,7 @@ button {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1.125rem 1.5rem; /* ↑ taller rows */
+  padding: 1.125rem 1.5rem;
   background: var(--bg);
   transition: background 0.15s;
 }
@@ -546,7 +545,7 @@ button {
 }
 .service-modern-price {
   font-family: var(--serif);
-  font-size: 22px; /* ↑ was 19 */
+  font-size: 22px;
   color: var(--gold);
   white-space: nowrap;
   margin-left: 1rem;
@@ -562,9 +561,6 @@ button {
 /* ==========================================================
    About Page
    ========================================================== */
-.about {
-  /* page wrapper */
-}
 .about-hero {
   background: var(--surface);
   border-bottom: 1px solid var(--border);
@@ -833,7 +829,7 @@ button {
 .modal-input,
 .modal-select {
   width: 100%;
-  padding: 13px 16px; /* ↑ taller */
+  padding: 13px 16px;
   font-size: 15px;
   font-family: var(--sans);
   border: 1px solid var(--border-dark);
@@ -854,6 +850,435 @@ button {
   padding: 1rem 1.25rem;
   background: var(--surface);
   border-radius: 8px;
+}
+
+/* ==========================================================
+   Booking Modal — Step UI
+   ========================================================== */
+.booking-modal {
+  max-width: 520px;
+  width: 95vw;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Progress bar */
+.booking-progress {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 1rem 1.5rem 0;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.booking-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  flex: 1;
+  padding: 0 8px 0.75rem;
+  border-bottom: 2px solid transparent;
+  opacity: 0.4;
+  transition: all 0.15s;
+}
+
+.booking-step.active {
+  opacity: 1;
+  border-bottom-color: #b4945a;
+}
+
+.booking-step.done {
+  opacity: 0.7;
+  border-bottom-color: #1a1a1a;
+}
+
+.booking-step-num {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #ebebeb;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #666;
+}
+
+.booking-step.active .booking-step-num {
+  background: #b4945a;
+  color: #fff;
+}
+
+.booking-step.done .booking-step-num {
+  background: #1a1a1a;
+  color: #fff;
+}
+
+.booking-step-label {
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #666;
+}
+
+.booking-step.active .booking-step-label {
+  color: #b4945a;
+}
+.booking-step.done .booking-step-label {
+  color: #1a1a1a;
+}
+
+/* Section */
+.booking-section {
+  padding: 0.25rem 0;
+}
+
+.booking-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #aaa;
+  margin-bottom: 1.25rem;
+}
+
+.booking-loading {
+  color: #aaa;
+  font-size: 14px;
+}
+.booking-error {
+  background: #fce4ec;
+  color: #c62828;
+  padding: 0.65rem 1rem;
+  border-radius: 5px;
+  font-size: 13px;
+  margin-bottom: 1rem;
+}
+
+/* Stylist grid */
+.stylist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+  gap: 10px;
+  margin-bottom: 1.5rem;
+}
+
+.stylist-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 1rem 0.75rem;
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  background: #fff;
+  cursor: pointer;
+  transition:
+    border-color 0.15s,
+    background 0.15s;
+}
+
+.stylist-card:hover {
+  border-color: #b4945a;
+}
+.stylist-card.selected {
+  border-color: #b4945a;
+  background: #fdf8f2;
+}
+
+.stylist-card-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: #f0ede8;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+  font-weight: 600;
+  color: #b4945a;
+}
+
+.stylist-card.selected .stylist-card-avatar {
+  background: #b4945a;
+  color: #fff;
+}
+
+.stylist-card-name {
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+/* Service list */
+.service-list {
+  max-height: 320px;
+  overflow-y: auto;
+  margin-bottom: 1.5rem;
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+}
+
+.service-category {
+  padding: 0;
+}
+
+.service-category-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #bbb;
+  padding: 8px 14px 4px;
+  background: #fafaf8;
+  border-bottom: 1px solid #f0f0f0;
+  position: sticky;
+  top: 0;
+}
+
+.service-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 14px;
+  background: #fff;
+  border: none;
+  border-bottom: 1px solid #f5f5f5;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.1s;
+}
+
+.service-item:hover {
+  background: #fafaf8;
+}
+.service-item.selected {
+  background: #fdf8f2;
+}
+.service-item:last-child {
+  border-bottom: none;
+}
+
+.service-item-name {
+  font-size: 13px;
+  color: #1a1a1a;
+  font-weight: 400;
+}
+
+.service-item.selected .service-item-name {
+  font-weight: 500;
+  color: #b4945a;
+}
+
+.service-item-price {
+  font-size: 13px;
+  color: #b4945a;
+  font-weight: 600;
+  white-space: nowrap;
+  margin-left: 12px;
+}
+
+/* Calendar */
+.calendar {
+  border: 1px solid #ebebeb;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 1.25rem;
+}
+
+.calendar-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: #fafaf8;
+  border-bottom: 1px solid #ebebeb;
+}
+
+.cal-month {
+  font-size: 14px;
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.cal-nav {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: #888;
+  cursor: pointer;
+  padding: 2px 8px;
+  border-radius: 4px;
+  transition: background 0.1s;
+}
+.cal-nav:hover {
+  background: #ebebeb;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+  padding: 8px;
+  background: #fff;
+}
+
+.cal-day-name {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #bbb;
+  text-align: center;
+  padding: 4px 0;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  border: none;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 400;
+  cursor: pointer;
+  transition:
+    background 0.1s,
+    color 0.1s;
+  background: none;
+  color: #1a1a1a;
+}
+
+.cal-day.available:hover {
+  background: #f0ede8;
+}
+.cal-day.unavailable {
+  color: #ccc;
+  cursor: not-allowed;
+}
+.cal-day.selected {
+  background: #b4945a !important;
+  color: #fff !important;
+  font-weight: 600;
+}
+
+/* Time slots */
+.time-slots {
+  margin-bottom: 1.25rem;
+}
+
+.time-slots-label {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888;
+  margin-bottom: 10px;
+}
+
+.time-slots-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.time-slot {
+  padding: 8px 4px;
+  border: 1px solid #ebebeb;
+  border-radius: 6px;
+  background: #fff;
+  font-size: 12px;
+  font-weight: 500;
+  color: #1a1a1a;
+  cursor: pointer;
+  transition:
+    border-color 0.1s,
+    background 0.1s;
+  text-align: center;
+}
+
+.time-slot:hover {
+  border-color: #b4945a;
+  background: #fdf8f2;
+}
+.time-slot.selected {
+  background: #b4945a;
+  border-color: #b4945a;
+  color: #fff;
+}
+
+/* Booking summary */
+.booking-summary {
+  border: 1px solid #ebebeb;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.booking-summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+  border-bottom: 1px solid #f5f5f5;
+  font-size: 13px;
+}
+
+.booking-summary-row:last-child {
+  border-bottom: none;
+}
+.booking-summary-row span:first-child {
+  color: #aaa;
+  font-weight: 500;
+}
+.booking-summary-row span:last-child {
+  color: #1a1a1a;
+  font-weight: 500;
+}
+
+/* Nav */
+.booking-nav {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #ebebeb;
+}
+
+/* Success */
+.booking-success {
+  text-align: center;
+}
+
+.booking-success-icon {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #e8f5e9;
+  color: #2e7d32;
+  font-size: 24px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+}
+
+.booking-success-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 1.25rem;
+}
+
+.booking-note {
+  font-size: 13px;
+  color: #888;
+  margin: 1rem 0 1.5rem;
+  line-height: 1.6;
 }
 
 /* ==========================================================
@@ -1293,14 +1718,13 @@ table.apts-table tbody tr:hover td {
   border-color: var(--text);
 }
 
-/* Scrollable track — no scrollbar shown */
 .gallery-track-wrap {
   overflow-x: scroll;
   overflow-y: hidden;
   cursor: grab;
   -webkit-overflow-scrolling: touch;
-  scrollbar-width: none; /* Firefox */
-  -ms-overflow-style: none; /* IE/Edge */
+  scrollbar-width: none;
+  -ms-overflow-style: none;
   padding: 0 1.25rem;
 }
 .gallery-track-wrap::-webkit-scrollbar {
@@ -1314,10 +1738,9 @@ table.apts-table tbody tr:hover td {
   display: flex;
   gap: 10px;
   width: max-content;
-  padding: 4px 2px 8px; /* small top/bottom so box-shadow isn't clipped */
+  padding: 4px 2px 8px;
 }
 
-/* Each slide */
 .gallery-slide {
   flex-shrink: 0;
   position: relative;
@@ -1327,15 +1750,12 @@ table.apts-table tbody tr:hover td {
   cursor: pointer;
   border-radius: var(--radius);
   background: var(--surface);
-  /* Alternating tall / square for visual rhythm */
 }
 
-/* Odd slides: tall portrait */
 .gallery-slide:nth-child(odd) {
   width: 300px;
   height: 420px;
 }
-/* Even slides: square */
 .gallery-slide:nth-child(even) {
   width: 300px;
   height: 340px;
@@ -1386,7 +1806,6 @@ table.apts-table tbody tr:hover td {
   transform: scale(1);
 }
 
-/* Lightbox */
 .gallery-lightbox {
   position: fixed;
   inset: 0;
@@ -1424,7 +1843,6 @@ table.apts-table tbody tr:hover td {
   color: #fff;
 }
 
-/* About photo strip */
 .about-photo-strip {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
@@ -1456,8 +1874,6 @@ table.apts-table tbody tr:hover td {
 /* ==========================================================
    Team — Full Profile Sections
    ========================================================== */
-
-/* Each stylist gets their own alternating section */
 .stylist-section {
   border-top: 1px solid var(--border);
   padding: 5rem 1.25rem;
@@ -1466,7 +1882,7 @@ table.apts-table tbody tr:hover td {
 }
 
 .stylist-section.alt .stylist-inner {
-  direction: rtl; /* flip photo to right on even cards */
+  direction: rtl;
 }
 .stylist-section.alt .stylist-inner > * {
   direction: ltr;
@@ -1546,7 +1962,6 @@ table.apts-table tbody tr:hover td {
   max-width: 58ch;
 }
 
-/* Hours block */
 .stylist-hours {
   background: var(--surface);
   border-radius: var(--radius);
@@ -1577,7 +1992,6 @@ table.apts-table tbody tr:hover td {
   font-weight: 500;
 }
 
-/* Education / Specialty accordion */
 .stylist-accordion-btn {
   font-size: 12px;
   letter-spacing: 0.09em;
@@ -1636,7 +2050,6 @@ table.apts-table tbody tr:hover td {
   font-size: 11px;
 }
 
-/* Receptionist — simpler layout, no accordion needed */
 .stylist-section.receptionist .stylist-inner {
   grid-template-columns: 260px 1fr;
 }
@@ -1644,9 +2057,6 @@ table.apts-table tbody tr:hover td {
 /* ==========================================================
    Careers Section
    ========================================================== */
-.careers-section {
-  /* inherits .section */
-}
 .careers-layout {
   display: grid;
   grid-template-columns: 1fr 320px;

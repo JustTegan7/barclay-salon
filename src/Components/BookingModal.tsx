@@ -404,6 +404,22 @@ export default function BookingModal({ onClose }: BookingModalProps) {
                   role="group"
                   aria-labelledby="step-title"
                 >
+                  <button
+                    className={`stylist-card ${selectedStylist?.id === "none" ? "selected" : ""}`}
+                    onClick={() =>
+                      setSelectedStylist({
+                        id: "none",
+                        email: "",
+                        display_name: "No Preference",
+                      })
+                    }
+                    aria-pressed={selectedStylist?.id === "none"}
+                  >
+                    <div className="stylist-card-avatar" aria-hidden="true">
+                      ✦
+                    </div>
+                    <p className="stylist-card-name">No Preference</p>
+                  </button>
                   {stylists.map((s) => (
                     <button
                       key={s.id}
