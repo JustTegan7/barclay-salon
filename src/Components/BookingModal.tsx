@@ -148,7 +148,7 @@ export default function BookingModal({ onClose }: BookingModalProps) {
       setLoading(true);
       try {
         const [svcData, staffData] = await Promise.all([
-          apiGet<Service[]>("/services"),
+          apiGet<Service[]>("/api/services"),
           apiGet<{ ok: boolean; staff: Stylist[] }>("/api/staff"),
         ]);
         setServices(svcData ?? []);
