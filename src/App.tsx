@@ -49,7 +49,7 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
       try {
         setPreviewLoading(true);
         setPreviewError("");
-        const data = await apiGet<Service[]>("/services");
+        const data = await apiGet<Service[]>("/api/services");
         if (!cancelled) setPreviewServices((data ?? []).slice(0, 6));
       } catch (e) {
         console.error(e);
