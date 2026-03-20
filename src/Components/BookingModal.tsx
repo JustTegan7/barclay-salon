@@ -76,6 +76,7 @@ export default function BookingModal({ onClose }: BookingModalProps) {
   const [selectedService, setSelectedService] = useState<Service | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
   const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [bookedTimes, setBookedTimes] = useState<string[]>([]);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
@@ -84,18 +85,13 @@ export default function BookingModal({ onClose }: BookingModalProps) {
   const [calYear, setCalYear] = useState(today.getFullYear());
   const [calMonth, setCalMonth] = useState(today.getMonth());
 
-  // ── Focus trap ─────────────────────────────────────────
   const modalRef = useRef<HTMLDivElement>(null);
   const previousFocus = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    // Save what was focused before modal opened and restore on close
     previousFocus.current = document.activeElement as HTMLElement;
-
-    // Focus the first focusable element inside the modal
     const first = modalRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE)[0];
     first?.focus();
-
     return () => {
       previousFocus.current?.focus();
     };
@@ -103,22 +99,17 @@ export default function BookingModal({ onClose }: BookingModalProps) {
 
   useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      // Escape closes the modal
       if (e.key === "Escape") {
         onClose();
         return;
       }
-
-      // Tab cycles only within the modal
       if (e.key === "Tab" && modalRef.current) {
         const focusable = Array.from(
           modalRef.current.querySelectorAll<HTMLElement>(FOCUSABLE),
         );
         if (focusable.length === 0) return;
-
         const first = focusable[0];
         const last = focusable[focusable.length - 1];
-
         if (e.shiftKey) {
           if (document.activeElement === first) {
             e.preventDefault();
@@ -132,12 +123,10 @@ export default function BookingModal({ onClose }: BookingModalProps) {
         }
       }
     }
-
     document.addEventListener("keydown", handleKeyDown);
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, [onClose]);
 
-  // Re-focus first element when step changes
   useEffect(() => {
     const first = modalRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE)[0];
     first?.focus();
@@ -161,6 +150,16 @@ export default function BookingModal({ onClose }: BookingModalProps) {
     }
     load();
   }, []);
+
+  useEffect(() => {
+    if (!selectedDate) return;
+    const dateStr = selectedDate.toISOString().split("T")[0];
+    apiGet<{ ok: boolean; booked: string[] }>(
+      `/api/appointments/booked?date=${dateStr}`,
+    )
+      .then((data) => setBookedTimes(data.booked ?? []))
+      .catch(() => setBookedTimes([]));
+  }, [selectedDate]);
 
   const servicesByCategory = services.reduce<Record<string, Service[]>>(
     (acc, s) => {
@@ -200,6 +199,17 @@ export default function BookingModal({ onClose }: BookingModalProps) {
         return hours ? generateTimeSlots(hours.open, hours.close) : [];
       })()
     : [];
+
+  const availableTimeSlots = timeSlots.filter((t) => {
+    const [h, m] = t.split(":").map(Number);
+    const slotDate = new Date(selectedDate!);
+    slotDate.setHours(h, m, 0, 0);
+    const slotMs = slotDate.getTime();
+    return !bookedTimes.some((b) => {
+      const bookedMs = new Date(b).getTime();
+      return Math.abs(slotMs - bookedMs) < 60 * 60 * 1000;
+    });
+  });
 
   async function handleSubmit() {
     if (
@@ -581,16 +591,22 @@ export default function BookingModal({ onClose }: BookingModalProps) {
                     role="group"
                     aria-labelledby="time-slots-label"
                   >
-                    {timeSlots.map((t) => (
-                      <button
-                        key={t}
-                        className={`time-slot ${selectedTime === t ? "selected" : ""}`}
-                        onClick={() => setSelectedTime(t)}
-                        aria-pressed={selectedTime === t}
-                      >
-                        {formatTime(t)}
-                      </button>
-                    ))}
+                    {availableTimeSlots.length === 0 ? (
+                      <p className="booking-loading">
+                        No available slots for this day.
+                      </p>
+                    ) : (
+                      availableTimeSlots.map((t) => (
+                        <button
+                          key={t}
+                          className={`time-slot ${selectedTime === t ? "selected" : ""}`}
+                          onClick={() => setSelectedTime(t)}
+                          aria-pressed={selectedTime === t}
+                        >
+                          {formatTime(t)}
+                        </button>
+                      ))
+                    )}
                   </div>
                 </div>
               )}

@@ -589,5 +589,25 @@ app.post(
     }
   },
 );
+// Booked slots for a given date
+app.get("/api/appointments/booked", async (req, res) => {
+  try {
+    const { date } = req.query; // e.g. 2026-03-21
+    if (!date)
+      return res.status(400).json({ ok: false, error: "date required" });
 
+    const result = await query(
+      `SELECT datetime FROM guest_appointments
+       WHERE datetime::date = $1::date
+       AND LOWER(status) <> 'cancelled'
+       ORDER BY datetime ASC;`,
+      [date],
+    );
+
+    return res.json({ ok: true, booked: result.rows.map((r) => r.datetime) });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ ok: false, error: "Server error" });
+  }
+});
 module.exports = app;
