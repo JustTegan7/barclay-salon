@@ -1,5 +1,7 @@
 -- FUTURE SCHEMA (not required for V1)
 
+-- REFERENCE ONLY — DO NOT RUN AGAINST PRODUCTION DB
+-- Tables are created by initDb() in src/db.js
 
 -- PostgreSQL schema + seed data for Barclay Salon booking backend
 BEGIN;

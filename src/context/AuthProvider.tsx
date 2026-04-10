@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useRef, ReactNode } from "react";
 import { apiPost } from "../api/client";
 import { AuthContext } from "./AuthContext";
-import type { AuthUser, LoginResult } from "./authTypes";
+import type { AuthUser, LoginResult } from "./authTypes.ts";
 
 const INACTIVITY_MS = 5 * 60 * 1000;
 const WARNING_BEFORE_MS = 60 * 1000;
