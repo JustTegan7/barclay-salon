@@ -9,6 +9,8 @@ type NavbarProps = {
 };
 
 const SHOP_URL = "https://shop.saloninteractive.com/store/BARCLAYSALON";
+const GIFT_CERT_URL =
+  "https://www.salonvision.com/barclayssalonllc/GiftCertificatePop.aspx";
 
 export const Navbar: React.FC<NavbarProps> = ({ onQuickBook }) => {
   const navigate = useNavigate();
@@ -30,10 +32,15 @@ export const Navbar: React.FC<NavbarProps> = ({ onQuickBook }) => {
         <nav className="navbar-links" aria-label="Primary">
           <Link to="/services">Services</Link>
           <Link to="/about">About</Link>
-          <Link to="/contact">Contact</Link>
+          <Link to="/specials">Specials</Link>
+          <Link to="/reviews">Reviews</Link>
           <a href={SHOP_URL} target="_blank" rel="noreferrer">
             Shop ↗
           </a>
+          <a href={GIFT_CERT_URL} target="_blank" rel="noreferrer">
+            Gift Certificates ↗
+          </a>
+          <Link to="/contact">Contact</Link>
 
           {!user ? (
             <Link to="/login">Login</Link>
@@ -54,11 +61,7 @@ export const Navbar: React.FC<NavbarProps> = ({ onQuickBook }) => {
           )}
         </nav>
 
-        <button
-          type="button"
-          className="navbar-cta"
-          onClick={onQuickBook}
-        >
+        <button type="button" className="navbar-cta" onClick={onQuickBook}>
           <span>✂</span>
           <span>Book Now</span>
         </button>

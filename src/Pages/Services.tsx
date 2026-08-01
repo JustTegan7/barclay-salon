@@ -28,6 +28,11 @@ const SERVICE_DATA: Category[] = [
     ],
   },
   {
+    title: "Just For Men",
+    note: "Buzz cuts and clipper cuts are also available above under Designer Haircuts & Styles.",
+    services: [{ name: "Men's Camo Color", price: "$60+" }],
+  },
+  {
     title: "Color",
     note: "If booking a stand-alone chemical service, there will be an extra blow-dry charge added.",
     services: [
@@ -38,7 +43,6 @@ const SERVICE_DATA: Category[] = [
       { name: "Full Mesh Cap Custom Blonding Service", price: "$108+" },
       { name: "Partial Mesh Cap Custom Blonding Service", price: "$93+" },
       { name: "Custom Color", price: "$101+" },
-      { name: "Men's Camo Color", price: "$60+" },
       { name: "Bleach Retouch", price: "$107+ per hour" },
       { name: "Color Correction", price: "$107+ per hour" },
       { name: "Glaze", price: "$50+" },
@@ -106,9 +110,7 @@ const ServicesPage: React.FC = () => {
         {SERVICE_DATA.map((category) => (
           <div key={category.title} className="services-block">
             <h2 className="services-block-title">{category.title}</h2>
-            {category.note && (
-              <p className="services-note">{category.note}</p>
-            )}
+            {category.note && <p className="services-note">{category.note}</p>}
             <div className="services-grid">
               {category.services.map((service) => (
                 <div key={service.name} className="service-modern-card">

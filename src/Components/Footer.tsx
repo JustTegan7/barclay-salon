@@ -89,8 +89,13 @@ export const Footer: React.FC = () => {
       </div>
 
       <div className="footer-bottom">
-        <span>© {new Date().getFullYear()} Barclay's Salon. All rights reserved.</span>
-        <span>Color, cut &amp; care specialists in Everett, WA.</span>
+        <span>
+          © {new Date().getFullYear()} Barclay's Salon. All rights reserved.
+        </span>
+        <span>
+          We service Everett, Mukilteo, Mill Creek, Snohomish, Edmonds,
+          Marysville, Lynnwood, and Arlington, WA.
+        </span>
       </div>
     </footer>
   );

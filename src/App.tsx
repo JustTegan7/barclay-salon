@@ -12,6 +12,9 @@ import BookingModal from "./Components/BookingModal";
 import ServicesPage from "./Pages/Services";
 import AboutPage from "./Pages/About";
 import ContactPage from "./Pages/Contact";
+import SpecialsPage from "./Pages/Specials";
+import ReviewsPage from "./Pages/Reviews";
+import ApplyPage from "./Pages/Apply";
 import LoginPage from "./Pages/LoginPage";
 import Dashboard from "./Pages/Dashboard";
 import "./Pages/dashboard.css";
@@ -310,6 +313,9 @@ const App: React.FC = () => {
         <Route path="/" element={<HomePage onQuickBook={openBooking} />} />
         <Route path="/services" element={<ServicesPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/specials" element={<SpecialsPage />} />
+        <Route path="/reviews" element={<ReviewsPage />} />
+        <Route path="/apply" element={<ApplyPage />} />
         <Route path="/contact" element={<ContactPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route

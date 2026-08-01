@@ -188,6 +188,29 @@ const ContactPage: React.FC = () => {
             </div>
           </div>
         </div>
+
+        {/* Salon Policies */}
+        <div
+          className="section"
+          style={{ borderTop: "1px solid var(--border)", marginTop: "2rem" }}
+        >
+          <p className="about-eyebrow" style={{ marginBottom: "0.875rem" }}>
+            Good to know
+          </p>
+          <h2 className="section-heading">Salon Policies</h2>
+          <p className="section-body">
+            Our stylists are commission-based and rely on each guest making it
+            to their scheduled appointment. We require a card to reserve your
+            appointment time — if you need to cancel, please give us at least 48
+            hours' notice so we can rebook the slot. After a second missed
+            appointment, a deposit will be required for future bookings.
+          </p>
+          <p className="section-body">
+            We accept Visa, Mastercard, cash, and check. Looking for a gift? Ask
+            us about building a custom gift package around any combination of
+            color, cutting, treatments, and waxing services.
+          </p>
+        </div>
       </div>
     </main>
   );

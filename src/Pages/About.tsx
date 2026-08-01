@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 import strip1 from "../assets/Gallery/1.jpg";
 import strip2 from "../assets/Gallery/4.jpg";
@@ -375,18 +376,9 @@ const AboutPage: React.FC = () => (
           </div>
 
           <div className="careers-cta-row">
-            {/*
-              Replace this href with your real Google Form link.
-              Go to forms.google.com → create form → Share → Copy link
-            */}
-            <a
-              className="btn-primary"
-              href="https://forms.google.com"
-              target="_blank"
-              rel="noreferrer"
-            >
-              Apply Now ↗
-            </a>
+            <Link className="btn-primary" to="/apply">
+              Apply Now →
+            </Link>
             <a href="tel:4253531244" className="btn-outline">
               Call 425-353-1244
             </a>
