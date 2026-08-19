@@ -1,9 +1,9 @@
 /* ==========================================================
    Barclay's Salon — Global Styles
-   Clean & Modern — Cormorant + DM Sans
+   Warm & Elegant — Fraunces + Inter
    ========================================================== */
 
-@import url("https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,400;0,500;1,400&family=DM+Sans:opsz,wght@9..40,400;9..40,500&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap");
 
 *,
 *::before,
@@ -17,20 +17,23 @@
    Design Tokens
    ========================================================== */
 :root {
-  --serif: "Cormorant", Georgia, serif;
-  --sans: "DM Sans", system-ui, sans-serif;
+  --serif: "Fraunces", Georgia, serif;
+  --sans: "Inter", system-ui, sans-serif;
 
-  --gold: #a8864c;
-  --gold-faint: rgba(168, 134, 76, 0.08);
+  --gold: #c79a5c;
+  --gold-faint: rgba(199, 154, 92, 0.1);
+
+  --terracotta: #b9704a;
+  --terracotta-dark: #9c5a38;
 
   --bg: #ffffff;
-  --surface: #f9f7f4;
-  --text: #1a1a1a;
+  --surface: #faf6f1;
+  --text: #241f1b;
   --muted: #6b6560;
   --border: #e8e4de;
   --border-dark: #d0ccc4;
 
-  --radius: 10px;
+  --radius: 14px;
   --radius-lg: 16px;
 }
 
@@ -120,20 +123,26 @@ button {
   align-items: center;
   gap: 8px;
   padding: 14px 34px;
-  background: var(--text);
+  background: var(--terracotta);
   color: #fff;
-  border: none;
-  border-radius: 2px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
   font-family: var(--sans);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s;
+  box-shadow: 0 10px 24px -8px rgba(185, 112, 74, 0.5);
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 .btn-primary:hover {
-  opacity: 0.82;
+  background: var(--terracotta-dark);
+  box-shadow: 0 14px 28px -8px rgba(185, 112, 74, 0.6);
+  transform: translateY(-2px);
 }
 
 .btn-outline {
@@ -143,21 +152,23 @@ button {
   padding: 13px 30px;
   background: transparent;
   color: var(--text);
-  border: 1px solid var(--border-dark);
-  border-radius: 2px;
+  border: 1.5px solid var(--text);
+  border-radius: 999px;
   font-family: var(--sans);
   font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   cursor: pointer;
   transition:
-    border-color 0.2s,
-    background 0.2s;
+    background 0.25s ease,
+    color 0.25s ease,
+    transform 0.25s ease;
 }
 .btn-outline:hover {
-  border-color: var(--text);
-  background: rgba(0, 0, 0, 0.02);
+  background: var(--text);
+  color: #fff;
+  transform: translateY(-2px);
 }
 
 .btn-hero-primary {
@@ -165,20 +176,26 @@ button {
   align-items: center;
   gap: 8px;
   padding: 16px 38px;
-  background: var(--text);
+  background: var(--terracotta);
   color: #fff;
-  border: none;
-  border-radius: 2px;
+  border: 1.5px solid transparent;
+  border-radius: 999px;
   font-family: var(--sans);
   font-size: 13px;
-  font-weight: 500;
-  letter-spacing: 0.09em;
+  font-weight: 600;
+  letter-spacing: 0.05em;
   text-transform: uppercase;
   cursor: pointer;
-  transition: opacity 0.2s;
+  box-shadow: 0 10px 24px -8px rgba(185, 112, 74, 0.5);
+  transition:
+    background 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 .btn-hero-primary:hover {
-  opacity: 0.82;
+  background: var(--terracotta-dark);
+  box-shadow: 0 14px 28px -8px rgba(185, 112, 74, 0.6);
+  transform: translateY(-2px);
 }
 
 .btn-link {
@@ -289,22 +306,26 @@ button {
 
 .navbar-cta {
   font-size: 12px;
-  letter-spacing: 0.09em;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
+  font-weight: 600;
   padding: 11px 24px;
-  background: var(--text);
+  background: var(--terracotta);
   color: #fff;
   border: none;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 999px;
   font-family: var(--sans);
-  transition: opacity 0.2s;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
   display: flex;
   align-items: center;
   gap: 7px;
 }
 .navbar-cta:hover {
-  opacity: 0.82;
+  background: var(--terracotta-dark);
+  transform: translateY(-1px);
 }
 
 /* ==========================================================
@@ -886,7 +907,7 @@ button {
 
 .booking-step.active {
   opacity: 1;
-  border-bottom-color: #b4945a;
+  border-bottom-color: var(--gold);
 }
 
 .booking-step.done {
@@ -908,7 +929,7 @@ button {
 }
 
 .booking-step.active .booking-step-num {
-  background: #b4945a;
+  background: var(--gold);
   color: #fff;
 }
 
@@ -926,7 +947,7 @@ button {
 }
 
 .booking-step.active .booking-step-label {
-  color: #b4945a;
+  color: var(--gold);
 }
 .booking-step.done .booking-step-label {
   color: #1a1a1a;
@@ -983,10 +1004,10 @@ button {
 }
 
 .stylist-card:hover {
-  border-color: #b4945a;
+  border-color: var(--gold);
 }
 .stylist-card.selected {
-  border-color: #b4945a;
+  border-color: var(--gold);
   background: #fdf8f2;
 }
 
@@ -1000,11 +1021,11 @@ button {
   justify-content: center;
   font-size: 18px;
   font-weight: 600;
-  color: #b4945a;
+  color: var(--gold);
 }
 
 .stylist-card.selected .stylist-card-avatar {
-  background: #b4945a;
+  background: var(--gold);
   color: #fff;
 }
 
@@ -1074,12 +1095,12 @@ button {
 
 .service-item.selected .service-item-name {
   font-weight: 500;
-  color: #b4945a;
+  color: var(--gold);
 }
 
 .service-item-price {
   font-size: 13px;
-  color: #b4945a;
+  color: var(--gold);
   font-weight: 600;
   white-space: nowrap;
   margin-left: 12px;
@@ -1162,7 +1183,7 @@ button {
   cursor: not-allowed;
 }
 .cal-day.selected {
-  background: #b4945a !important;
+  background: var(--gold) !important;
   color: #fff !important;
   font-weight: 600;
 }
@@ -1201,12 +1222,12 @@ button {
 }
 
 .time-slot:hover {
-  border-color: #b4945a;
+  border-color: var(--gold);
   background: #fdf8f2;
 }
 .time-slot.selected {
-  background: #b4945a;
-  border-color: #b4945a;
+  background: var(--gold);
+  border-color: var(--gold);
   color: #fff;
 }
 
@@ -1449,19 +1470,23 @@ button {
   width: 100%;
   padding: 14px;
   font-size: 13px;
-  letter-spacing: 0.1em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
   font-family: var(--sans);
-  background: var(--text);
+  background: var(--terracotta);
   color: #fff;
   border: none;
   cursor: pointer;
-  border-radius: 2px;
+  border-radius: 999px;
   margin-top: 0.5rem;
-  transition: opacity 0.2s;
+  transition:
+    background 0.25s ease,
+    transform 0.25s ease;
 }
 .login-submit:hover {
-  opacity: 0.82;
+  background: var(--terracotta-dark);
+  transform: translateY(-1px);
 }
 .login-error {
   font-size: 13px;
