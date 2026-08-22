@@ -6,6 +6,15 @@ import ProtectedRoute from "./routes/ProtectedRoute";
 
 import { Navbar } from "./Components/Navbar";
 import { Footer } from "./Components/Footer";
+import { TopBar } from "./Components/TopBar";
+import { QuickStrip } from "./Components/QuickStrip";
+import { PricingTabs } from "./Components/PricingTabs";
+import { TeamSection } from "./Components/TeamSection";
+import { ReviewsSection } from "./Components/ReviewsSection";
+import { FaqSection } from "./Components/FaqSection";
+import { VisitSection } from "./Components/VisitSection";
+import { FinalCta } from "./Components/FinalCta";
+import { MobileBookBar } from "./Components/MobileBookBar";
 import Gallery from "./Components/Gallery";
 import BookingModal from "./Components/BookingModal";
 
@@ -20,9 +29,6 @@ import Dashboard from "./Pages/Dashboard";
 import "./Pages/dashboard.css";
 
 import heroPhoto from "./assets/Gallery/9.jpg";
-
-import { apiGet } from "./api/client";
-import type { Service } from "./types";
 
 const SHOP_URL = "https://shop.saloninteractive.com/store/BARCLAYSALON";
 
@@ -42,31 +48,6 @@ const ScrollToHash: React.FC = () => {
 
 /** ── Home Page ─────────────────────────────────────────── */
 const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
-  const [previewServices, setPreviewServices] = useState<Service[]>([]);
-  const [previewLoading, setPreviewLoading] = useState(false);
-  const [previewError, setPreviewError] = useState("");
-
-  useEffect(() => {
-    let cancelled = false;
-    (async () => {
-      try {
-        setPreviewLoading(true);
-        setPreviewError("");
-        const data = await apiGet<Service[]>("/api/services");
-        if (!cancelled) setPreviewServices((data ?? []).slice(0, 6));
-      } catch (e) {
-        console.error(e);
-        if (!cancelled)
-          setPreviewError("Services preview unavailable right now.");
-      } finally {
-        if (!cancelled) setPreviewLoading(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
   return (
     <main className="app-main">
       {/* ── HERO ── */}
@@ -99,6 +80,7 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
               Online booking takes less than 60 seconds.
             </p>
             <div className="hero-meta">
+              <span>4.2★ · 273+ reviews across Google, Birdeye &amp; Yelp</span>
               <span>Family-owned in Everett since 1977</span>
               <span>Redken &amp; Pureology products</span>
               <span>Ongoing advanced education for stylists</span>
@@ -112,6 +94,9 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
           </aside>
         </div>
       </section>
+
+      {/* ── QUICK INFO STRIP ── */}
+      <QuickStrip />
 
       {/* ── ABOUT ── */}
       <section
@@ -153,110 +138,41 @@ const HomePage: React.FC<{ onQuickBook: () => void }> = ({ onQuickBook }) => {
         </div>
       </section>
 
-      {/* ── SERVICES PREVIEW ── */}
+      {/* ── SERVICES & PRICING ── */}
       <section
         className="section"
         id="services"
         style={{ borderTop: "1px solid var(--border)" }}
       >
-        <p className="about-eyebrow" style={{ marginBottom: "0.875rem" }}>
-          Menu preview
-        </p>
-        <h2 className="section-heading">Services</h2>
-        <p className="section-body">
-          A quick peek at our menu. For the full list with all categories and
-          pricing, visit the Services page.
-        </p>
-        {previewError ? (
-          <p className="section-muted" style={{ marginTop: "10px" }}>
-            {previewError}
+        <div style={{ textAlign: "center", maxWidth: 640, margin: "0 auto" }}>
+          <p className="about-eyebrow">Service menu</p>
+          <h2 className="section-heading">Real pricing, no PDF required.</h2>
+          <p className="section-body" style={{ margin: "0 auto" }}>
+            Every price below is pulled straight from Barclay's current menu.
+            Final pricing may vary by stylist &amp; hair length — ask at
+            booking.
           </p>
-        ) : previewLoading ? (
-          <p className="section-muted" style={{ marginTop: "10px" }}>
-            Loading preview…
-          </p>
-        ) : previewServices.length > 0 ? (
-          <div className="placeholder-rail">
-            {previewServices.map((s) => (
-              <div key={s.id} className="placeholder-card">
-                <div>{s.name}</div>
-                <div
-                  className="section-muted"
-                  style={{ marginTop: "6px", fontSize: "13px" }}
-                >
-                  {s.category} · ${Math.round(s.base_price_cents / 100)}
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div className="placeholder-rail">
-            {[
-              { name: "Haircut – Short", cat: "Haircuts", price: "$61+" },
-              {
-                name: "Full Foil Custom Blonding",
-                cat: "Color",
-                price: "$148+",
-              },
-              { name: "Full Balayage Service", cat: "Color", price: "$161+" },
-              { name: "Brazilian Blowout", cat: "Texture", price: "$310+" },
-              {
-                name: "Full Balayage Custom Package",
-                cat: "Packages",
-                price: "$312+",
-              },
-              { name: "Brow Wax", cat: "Waxing", price: "$23+" },
-            ].map((s) => (
-              <div key={s.name} className="placeholder-card">
-                <div
-                  style={{
-                    fontSize: "10px",
-                    letterSpacing: "0.1em",
-                    textTransform: "uppercase",
-                    color: "var(--muted)",
-                    marginBottom: "6px",
-                  }}
-                >
-                  {s.cat}
-                </div>
-                <div
-                  style={{
-                    fontSize: "14px",
-                    color: "var(--text)",
-                    marginBottom: "8px",
-                  }}
-                >
-                  {s.name}
-                </div>
-                <div
-                  style={{
-                    fontFamily: "var(--serif)",
-                    fontSize: "22px",
-                    color: "var(--gold)",
-                  }}
-                >
-                  {s.price}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-        <div
-          style={{
-            display: "flex",
-            gap: "12px",
-            flexWrap: "wrap",
-            marginTop: "1.5rem",
-          }}
-        >
-          <Link className="btn-outline" to="/services">
-            View Full Menu →
-          </Link>
         </div>
+        <PricingTabs />
       </section>
 
       {/* ── GALLERY ── */}
       <Gallery />
+
+      {/* ── TEAM ── */}
+      <TeamSection onQuickBook={onQuickBook} />
+
+      {/* ── REVIEWS ── */}
+      <ReviewsSection />
+
+      {/* ── FAQ ── */}
+      <FaqSection />
+
+      {/* ── VISIT / LOCATION ── */}
+      <VisitSection />
+
+      {/* ── FINAL CTA ── */}
+      <FinalCta onQuickBook={onQuickBook} />
 
       {/* ── SHOP ── */}
       <section
@@ -307,6 +223,7 @@ const App: React.FC = () => {
   return (
     <div className="app">
       <ScrollToHash />
+      <TopBar />
       <Navbar onQuickBook={openBooking} />
 
       <Routes>
@@ -330,6 +247,7 @@ const App: React.FC = () => {
       </Routes>
 
       <Footer />
+      <MobileBookBar onQuickBook={openBooking} />
 
       {isBookingOpen && <BookingModal onClose={closeBooking} />}
     </div>
