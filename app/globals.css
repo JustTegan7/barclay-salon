@@ -1,0 +1,140 @@
+@import "tailwindcss";
+
+:root {
+  --color-charcoal: #241f1b;
+  --color-charcoal-soft: #4a423c;
+  --color-ivory: #faf6f1;
+  --color-ivory-deep: #f3ebe2;
+  --color-blush: #f0e1d6;
+  --color-terracotta: #b9704a;
+  --color-terracotta-dark: #9c5a38;
+  --color-gold: #c79a5c;
+  --color-line: #e4d9cc;
+
+  --shadow-soft: 0 20px 50px -20px rgba(36, 31, 27, 0.25);
+}
+
+@theme inline {
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --color-ivory: var(--color-ivory);
+  --color-ivory-deep: var(--color-ivory-deep);
+  --color-blush: var(--color-blush);
+  --color-terracotta: var(--color-terracotta);
+  --color-terracotta-dark: var(--color-terracotta-dark);
+  --color-gold: var(--color-gold);
+  --color-line: var(--color-line);
+
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-fraunces), ui-serif, Georgia, serif;
+
+  --shadow-soft: var(--shadow-soft);
+}
+
+/*
+  Color scheme is deliberately locked to light. Native form controls (inputs,
+  selects) otherwise silently pick up a dark-mode text color from the OS that
+  can clash badly with this palette, so we opt the whole page out of that.
+*/
+html {
+  color-scheme: light;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+}
+
+/* ---------- reveal-on-scroll ---------- */
+.reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition:
+    opacity 0.8s cubic-bezier(0.2, 0.7, 0.3, 1),
+    transform 0.8s cubic-bezier(0.2, 0.7, 0.3, 1);
+}
+.reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition:
+    opacity 0.7s ease,
+    transform 0.7s ease;
+}
+.reveal-stagger.is-visible > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.reveal-stagger.is-visible > *:nth-child(1) {
+  transition-delay: 0.05s;
+}
+.reveal-stagger.is-visible > *:nth-child(2) {
+  transition-delay: 0.15s;
+}
+.reveal-stagger.is-visible > *:nth-child(3) {
+  transition-delay: 0.25s;
+}
+.reveal-stagger.is-visible > *:nth-child(4) {
+  transition-delay: 0.35s;
+}
+.reveal-stagger.is-visible > *:nth-child(5) {
+  transition-delay: 0.45s;
+}
+.reveal-stagger.is-visible > *:nth-child(6) {
+  transition-delay: 0.55s;
+}
+
+/* Respect reduced-motion preferences: skip the animation, just show content. */
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .reveal-stagger > * {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+
+/* ---------- gallery marquee ---------- */
+.marquee-track {
+  animation: marquee 46s linear infinite;
+}
+.marquee-row.reverse .marquee-track {
+  animation-direction: reverse;
+}
+.marquee-row:hover .marquee-track,
+.marquee-track:focus-within {
+  animation-play-state: paused;
+}
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .marquee-track {
+    animation: none;
+  }
+}
+
+/* ---------- FAQ accordion ---------- */
+.faq-answer {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows 0.35s ease;
+}
+.faq-answer > div {
+  overflow: hidden;
+}
+.faq-item[data-open="true"] .faq-answer {
+  grid-template-rows: 1fr;
+}
+.faq-item[data-open="true"] .faq-plus {
+  transform: rotate(45deg);
+}
