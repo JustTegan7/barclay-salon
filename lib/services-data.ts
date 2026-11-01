@@ -1,5 +1,5 @@
 // Real pricing pulled from Barclay's current service menu (as provided).
-// "+" pricing reflects starting rates — final cost is confirmed at consultation.
+// "+" pricing reflects starting rates; final cost is confirmed at consultation.
 
 export type ServiceItem = {
   name: string;

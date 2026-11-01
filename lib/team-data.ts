@@ -42,9 +42,9 @@ export const teamMembers: TeamMember[] = [
     slug: "sheryl",
     name: "Sheryl",
     role: "Receptionist & Salon Coordinator",
-    bio: "The friendly voice on the phone — Sheryl helps match you with the right stylist for your goals.",
+    bio: "The friendly voice on the phone, Sheryl helps match you with the right stylist for your goals.",
     photo: "/images/team/sheryl.jpg",
-    // Sheryl takes calls, not bookings — keep this on the phone line, not siteConfig.bookingUrl.
+    // Sheryl takes calls, not bookings; keep this on the phone line, not siteConfig.bookingUrl.
     bookHref: siteConfig.phoneHref,
     bookLabel: "Call Sheryl",
   },

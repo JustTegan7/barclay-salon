@@ -9,7 +9,7 @@ import { jsonLdString, breadcrumbSchema } from "@/lib/structured-data";
 export const metadata: Metadata = {
   title: "Gallery",
   description:
-    "Real before & after client results from Barclay's Salon in Everett, WA — balayage, foils, color correction, fashion color, and more.",
+    "Real before & after client results from Barclay's Salon in Everett, WA: balayage, foils, color correction, fashion color, and more.",
 };
 
 const crumbs = [

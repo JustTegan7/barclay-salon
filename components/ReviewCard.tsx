@@ -10,7 +10,7 @@ export function ReviewCard({ review }: { review: Review }) {
         {review.quote}
       </p>
       <span className="block text-[0.88rem] font-bold text-charcoal">
-        — {review.who}
+        – {review.who}
       </span>
     </div>
   );

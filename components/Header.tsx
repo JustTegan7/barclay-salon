@@ -54,15 +54,13 @@ export function Header() {
             <span aria-hidden>📞</span>
             <span>{siteConfig.phone}</span>
           </a>
-          <a
+          <Link
             href={siteConfig.bookingUrl}
-            target="_blank"
-            rel="noopener"
             onClick={() => trackLead("header_book_now")}
             className="inline-flex items-center justify-center gap-2 rounded-full border-[1.5px] border-transparent bg-terracotta px-4 py-2.5 text-[0.8rem] font-semibold text-white shadow-[0_10px_24px_-8px_rgba(185,112,74,0.55)] transition-all duration-[250ms] hover:-translate-y-0.5 hover:bg-terracotta-dark"
           >
             Book Now
-          </a>
+          </Link>
           <button
             aria-label="Menu"
             aria-expanded={open}

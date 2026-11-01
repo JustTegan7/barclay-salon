@@ -26,12 +26,12 @@ const inter = Inter({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   title: {
-    default: `${siteConfig.name} — Everett, WA Hair Salon | Book Online`,
+    default: `${siteConfig.name} | Everett, WA Hair Salon | Book Online`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
   openGraph: {
-    title: `${siteConfig.name} — Everett, WA Hair Salon`,
+    title: `${siteConfig.name} | Everett, WA Hair Salon`,
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
@@ -41,7 +41,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} — Everett, WA Hair Salon`,
+    title: `${siteConfig.name} | Everett, WA Hair Salon`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
   },

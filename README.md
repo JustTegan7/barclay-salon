@@ -27,8 +27,8 @@ Open http://localhost:3000. `npm run build` makes a production build, `npm run l
 | Setting | Where | What it does |
 | --- | --- | --- |
 | `NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY` | Vercel > Project > Settings > Environment Variables | Turns on the Contact page message form. Get a free key at web3forms.com using the inbox that should receive messages. The form stays hidden until this is set. |
-| `gaMeasurementId` | `lib/site-config.ts` | Google Analytics 4 Measurement ID (`G-XXXXXXXXXX`). Analytics only loads when this is set. |
-| `bookingUrl` | `lib/site-config.ts` | Where every "Book" button goes. |
+| `NEXT_PUBLIC_GA_MEASUREMENT_ID` | Vercel > Project > Settings > Environment Variables | Google Analytics 4 Measurement ID (`G-XXXXXXXXXX`). Analytics only loads when this is set. |
+| `bookingEmbedUrl` | `lib/site-config.ts` | The Envision booking frame embedded on `/book`. Every "Book" button goes to `/book`. |
 
 ## SEO
 

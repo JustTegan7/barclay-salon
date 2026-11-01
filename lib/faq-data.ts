@@ -19,7 +19,7 @@ export const faqItems: FaqItem[] = [
       "We ask for at least 48 hours' notice to cancel or reschedule. Cancellations inside 48 hours may be charged up to 50% of the service, and no-shows are charged in full. A valid card is required to hold all appointments.",
   },
   {
-    question: "I'm a new client — where do I start?",
+    question: "I'm a new client. Where do I start?",
     answer: `Not sure which service to book? Give us a call at ${siteConfig.phone} and we'll match you with the right stylist and service for your hair goals. Your stylist will always walk through the plan and pricing with you before getting started.`,
   },
   {

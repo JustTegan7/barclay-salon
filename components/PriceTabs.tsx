@@ -31,7 +31,7 @@ export function PriceTabs() {
       {/*
         Every category renders in the DOM (not just the active one) and
         visibility is toggled with CSS, so the full menu is present in the
-        server-rendered HTML — crawlable and visible with JavaScript off,
+        server-rendered HTML, crawlable and visible with JavaScript off,
         matching how the original static menu worked.
       */}
       {serviceCategories.map((cat) => (

@@ -3,7 +3,7 @@ import { galleryImages } from "@/lib/gallery-data";
 import { siteConfig } from "@/lib/site-config";
 
 // Two rows, split from the same real gallery set, scrolling opposite
-// directions — mirrors the original homepage's marquee effect.
+// directions, mirrors the original homepage's marquee effect.
 const mid = Math.ceil(galleryImages.length / 2);
 const rowA = galleryImages.slice(0, mid);
 const rowB = galleryImages.slice(mid);

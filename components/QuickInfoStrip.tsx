@@ -45,9 +45,9 @@ export function QuickInfoStrip() {
           </a>
         </Item>
         <Item icon="🚶" label="Walk-ins">
-          Always welcome —{" "}
+          Always welcome.{" "}
           <Link href="/faq" className="underline underline-offset-2">
-            see FAQ
+            See FAQ
           </Link>
         </Item>
       </div>

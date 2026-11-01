@@ -31,7 +31,7 @@ export default function ContactPage() {
       <PageHero
         eyebrow="Get In Touch"
         title="We'd love to see you."
-        description="Book online, call, or stop by — walk-ins are always welcome."
+        description="Book online, call, or stop by. Walk-ins are always welcome."
         crumbs={crumbs}
       />
 

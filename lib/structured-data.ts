@@ -24,7 +24,7 @@ function openingHoursSpecification() {
     }));
 }
 
-/** Core business schema for the whole site — render once, in the root layout. */
+/** Core business schema for the whole site; render once, in the root layout. */
 export function hairSalonSchema() {
   return {
     "@context": "https://schema.org",

@@ -110,7 +110,7 @@ export default function HomePage() {
         <Reveal>
           <SectionHead
             eyebrow="Find Us"
-            title={`Everett, WA — easy to find, easy to visit.`}
+            title={`Everett, WA. Easy to find, easy to visit.`}
           />
         </Reveal>
         <Reveal className="grid grid-cols-1 items-stretch gap-11 lg:grid-cols-2">

@@ -18,7 +18,7 @@ export const reviews: Review[] = [
     who: "Lori P., via Facebook",
   },
   {
-    quote: "Mary-Michael is the best — love my color and cut! Worth every penny.",
+    quote: "Mary-Michael is the best. Love my color and cut! Worth every penny.",
     who: "Sandy B., via Facebook",
   },
 ];

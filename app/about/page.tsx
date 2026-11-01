@@ -9,7 +9,7 @@ import { jsonLdString, breadcrumbSchema } from "@/lib/structured-data";
 export const metadata: Metadata = {
   title: "About",
   description:
-    "Barclay's Salon has served Everett, WA and Snohomish County since 1977 — a family-owned, proud Redken salon.",
+    "Barclay's Salon has served Everett, WA and Snohomish County since 1977. A family-owned, proud Redken salon.",
 };
 
 const crumbs = [
@@ -68,7 +68,7 @@ export default function AboutPage() {
           <h2 className="font-display text-[1.6rem]">Come see us</h2>
           <p className="mt-2 text-charcoal-soft">
             {siteConfig.address.street}, {siteConfig.address.city},{" "}
-            {siteConfig.address.state} {siteConfig.address.zip} — walk-ins
+            {siteConfig.address.state} {siteConfig.address.zip}. Walk-ins
             always welcome. See{" "}
             <Link href="/contact" className="text-terracotta-dark">
               hours &amp; directions

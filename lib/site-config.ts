@@ -54,9 +54,12 @@ export const siteConfig = {
     facebook: "https://www.facebook.com/barclays.hair/",
   },
 
-  // Online booking (Envision). Every "Book" button on the site reads from
-  // this one value, so a booking platform change is a one-line edit.
-  bookingUrl: "https://www.barclayshairdesign.com/book-online/",
+  // Online booking. Every "Book" button goes to the on-site /book page, which
+  // embeds the salon's Envision booking frame (bookingEmbedUrl). A booking
+  // platform change is a one-line edit to bookingEmbedUrl.
+  bookingUrl: "/book",
+  bookingEmbedUrl:
+    "https://na02.envisiongo.com/a/barclayssalonllc/OnlineBookingFrame.aspx",
   giftCertificateUrl:
     "https://www.salonvision.com/barclayssalonllc/GiftCertificatePop.aspx",
   reviewsUrl: "https://reviews.envisiongo.com/barclays-salon/",
@@ -73,9 +76,9 @@ export const siteConfig = {
   directionsUrl:
     "https://www.google.com/maps/dir/?api=1&destination=Barclay's+Hair+Design,320+112th+St+SW,Everett,WA+98204",
 
-  // Google Analytics 4 Measurement ID (e.g. "G-XXXXXXXXXX"). Analytics loads
-  // only when this is set.
-  gaMeasurementId: "",
+  // Google Analytics 4 Measurement ID (e.g. "G-XXXXXXXXXX"). Set
+  // NEXT_PUBLIC_GA_MEASUREMENT_ID in Vercel; analytics loads only when it's set.
+  gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "",
 } as const;
 
 export type SiteConfig = typeof siteConfig;
@@ -99,7 +102,7 @@ export const footerLinks = {
     { href: "/reviews", label: "Reviews" },
   ],
   book: [
-    { href: siteConfig.bookingUrl, label: "Book Online", external: true },
+    { href: siteConfig.bookingUrl, label: "Book Online", external: false },
     {
       href: siteConfig.giftCertificateUrl,
       label: "Gift Certificates",

@@ -8,7 +8,7 @@ import { jsonLdString, breadcrumbSchema, teamSchema } from "@/lib/structured-dat
 export const metadata: Metadata = {
   title: "Our Stylists",
   description:
-    "Meet the design & color specialists at Barclay's Salon in Everett, WA — trained continuously on Redken's newest color and cutting techniques.",
+    "Meet the design & color specialists at Barclay's Salon in Everett, WA, trained continuously on Redken's newest color and cutting techniques.",
 };
 
 const crumbs = [
