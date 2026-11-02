@@ -5,6 +5,7 @@ import "./globals.css";
 import { siteConfig } from "@/lib/site-config";
 import { hairSalonSchema, jsonLdString } from "@/lib/structured-data";
 import { Header } from "@/components/Header";
+import { DemoBanner } from "@/components/DemoBanner";
 import { Footer } from "@/components/Footer";
 import { MobileBookBar } from "@/components/MobileBookBar";
 
@@ -59,6 +60,7 @@ export default function RootLayout({
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdString(hairSalonSchema()) }}
         />
+        <DemoBanner />
         <Header />
         <main className="flex-1">{children}</main>
         <Footer />

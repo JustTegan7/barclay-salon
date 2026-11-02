@@ -13,6 +13,10 @@ export const siteConfig = {
 
   url: "https://www.barclaysalon.com",
 
+  // Shows the "Demo website by Evergreen Digital" banner at the top of every
+  // page. Set to false once the salon approves the site.
+  demoMode: true,
+
   logo: "/images/logo.png",
   ogImage: "/og-image.png",
 
@@ -77,8 +81,8 @@ export const siteConfig = {
     "https://www.google.com/maps/dir/?api=1&destination=Barclay's+Hair+Design,320+112th+St+SW,Everett,WA+98204",
 
   // Google Analytics 4 Measurement ID (e.g. "G-XXXXXXXXXX"). Set
-  // NEXT_PUBLIC_GA_MEASUREMENT_ID in Vercel; analytics loads only when it's set.
-  gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID ?? "",
+  // NEXT_PUBLIC_GA_MEASUREMENT_ID in Vercel to override. Property: Evergreen Digital > Barclay's Salon.
+  gaMeasurementId: process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || "G-V4FYVJ1ELX",
 } as const;
 
 export type SiteConfig = typeof siteConfig;
