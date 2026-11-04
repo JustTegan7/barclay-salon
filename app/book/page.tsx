@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { JuniperBooking } from "@/components/JuniperBooking";
 import { PageHero } from "@/components/PageHero";
 import { Section } from "@/components/Section";
 import { siteConfig } from "@/lib/site-config";
@@ -32,12 +33,7 @@ export default function BookPage() {
       <Section>
         <div className="grid grid-cols-1 gap-10 lg:grid-cols-[1fr_340px]">
           <div className="overflow-hidden rounded-[14px] border border-line bg-white shadow-soft">
-            <iframe
-              src={siteConfig.bookingEmbedUrl}
-              title="Book an appointment at Barclay's Salon"
-              className="block h-[900px] w-full"
-              loading="lazy"
-            />
+            <JuniperBooking slug="barclay-salon" />
           </div>
 
           <aside className="flex flex-col gap-6">
