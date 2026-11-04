@@ -58,12 +58,8 @@ export const siteConfig = {
     facebook: "https://www.facebook.com/barclays.hair/",
   },
 
-  // Online booking. Every "Book" button goes to the on-site /book page, which
-  // embeds the salon's Envision booking frame (bookingEmbedUrl). A booking
-  // platform change is a one-line edit to bookingEmbedUrl.
+  // Online booking. Every "Book" button goes to the on-site /book page.
   bookingUrl: "/book",
-  bookingEmbedUrl:
-    "https://na02.envisiongo.com/a/barclayssalonllc/OnlineBookingFrame.aspx",
   giftCertificateUrl:
     "https://www.salonvision.com/barclayssalonllc/GiftCertificatePop.aspx",
   reviewsUrl: "https://reviews.envisiongo.com/barclays-salon/",
