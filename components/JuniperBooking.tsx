@@ -30,6 +30,7 @@ export function JuniperBooking({ slug }: { slug: string }) {
     <div
       ref={hostRef}
       data-juniper-booking={slug}
+      data-theme="light"
       className="min-h-[600px] w-full max-w-full [&_iframe]:block [&_iframe]:w-full [&_iframe]:max-w-full [&_iframe]:border-0"
     />
   );
